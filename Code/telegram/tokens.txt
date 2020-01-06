@@ -1,0 +1,2 @@
+@triage_IoT_bot : 957562924:AAFlHxtAxnFf02QF1U6Phvle2bH_wVEd1ns
+@hospital_channel_bot : 907874511:AAHOw03gFpIn4qcza8Emz88FLJd3xNbX9r4
