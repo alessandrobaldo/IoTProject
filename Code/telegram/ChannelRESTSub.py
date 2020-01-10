@@ -9,8 +9,7 @@ t=TelegramHospitalChannel()
 class ChannelRESTMQTT(object):
 	def __init__(self, clientID):
 		self.clientID = clientID
-		self.topic=s.getTopicPublisher()
-		self.broker="eclipse.mosquitto.org"
+		self.broker="127.0.0.1"
 
 		self._paho_mqtt = PahoMQTT.Client(clientID, False)
 		self._paho_mqtt.on_connect = self.myOnConnect
@@ -19,7 +18,7 @@ class ChannelRESTMQTT(object):
 		self.subscribed=False
 
 	def start (self):
-		self._paho_mqtt.connect(self.messageBroker, 1883)
+		self._paho_mqtt.connect(self.broker, 1883)
 		self._paho_mqtt.loop_start()
 
 	def stop (self):
@@ -27,7 +26,7 @@ class ChannelRESTMQTT(object):
 		self._paho_mqtt.disconnect()
 
 	def myOnConnect (self, paho_mqtt, userdata, flags, rc):
-		print ("Connected to %s with result code: %d" % (self.messageBroker, rc))
+		print ("Connected to %s with result code: %d" % (self.broker, rc))
 
 	def myOnMessageReceived (self, paho_mqtt , userdata, msg):
 		message=json.loads(msg.payload)
@@ -48,16 +47,16 @@ class ChannelRESTMQTT(object):
 		self.subscribed=False
 
 	def GET(*uri,**params):
-        pass
+		pass
 
-    def PUT(*uri,**params):
-        pass
+	def PUT(*uri,**params):
+		pass
 
-    def POST(*uri,**params):
-        return "online"
+	def POST(*uri,**params):
+		return "online"
 
-    def DELETE(*uri,**params):
-        pass
+	def DELETE(*uri,**params):
+		pass
 
 if __name__ == "__main__":
 	conf = { '/': { 'request.dispatch': cherrypy.dispatch.MethodDispatcher(), 'tools.sessions.on': True } }
@@ -70,9 +69,9 @@ if __name__ == "__main__":
 	server.start()
 	server.mySubscribe()
 
-	while True and t.getFlag==False:
+	while True and t.getFlag()==False:
 		t.configure()
-		time.sleep(5)
+		time.sleep(10)
 
 	server.myUnsubscribe()
 	server.stop()

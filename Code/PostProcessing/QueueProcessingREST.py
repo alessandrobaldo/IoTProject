@@ -33,7 +33,7 @@ class QueueProcessingRESTMQTT(object):
 		for i in range(len(keys)):
 			if(keys[i]!=attributes[i]):
 				return json.dumps(return_res)
-
+		print(json_body)
 		q.sendDataDatabase("sensors",json_body)
 		return_res["return"]="done"
 		return json.dumps(return_res)
@@ -75,6 +75,7 @@ class QueueProcessingRESTMQTT(object):
 		if(self.subscribed==False):
 			try:
 				topic=q.getTopicsSubscriber()["telegram_triage"]
+				print(topic)
 				self._paho_mqtt.subscribe(topic, 2)
 				self.subscribed=True
 			except:
@@ -87,8 +88,11 @@ class QueueProcessingRESTMQTT(object):
 
 	def myOnMessageReceived(self, paho_mqtt , userdata, msg):
 			# A new message is received
+			
 			message=json.loads(msg.payload)
+			print(message)
 			message["id_patient"]=q.getCurrentPatient()
+
 			id1=message["pressure_id"]
 			id2=message["heart_id"]
 			id3=message["glucose_id"]
@@ -101,7 +105,7 @@ class QueueProcessingRESTMQTT(object):
 			"code":code,
 			"time_stamp":time_stamp
 			}
-
+			print("CCCCCC")
 			q.askDataSensors(id1,id2,id3)
 			q.sendDataDatabase("patients",message)
 			r=requests.put("http://"+self.ip_others["time_shift"][0]+":"+self.ip_others["time_shift"][1],json.dumps(data))
@@ -116,15 +120,15 @@ if __name__=='__main__':
 
 	server.start()
 	
+	
 	i=0
 	while True:
-		server.mySubscribe()
 		q.configure()
+		server.mySubscribe()
 		q.processData()
-		time.sleep(5)
+		time.sleep(10)
 		i+=1
-		j=r
-		if(i==12):
+		if(i==2):
 			server.myPublish(q.getQueue())
 			q.processPatient()
 			i=0

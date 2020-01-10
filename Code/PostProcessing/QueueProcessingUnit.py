@@ -8,7 +8,9 @@ class QueueProcessingUnit(object):
 	
 	def __init__(self):
 		
-		self.catalog="http://192.168.1.102:8080"
+		#self.catalog="http://192.168.1.103:8080"
+		self.catalog=json.loads(open("catalog.json").read())["catalog"]
+		'''
 		self.my_data={
 		"queue_server":
 		{	
@@ -17,10 +19,12 @@ class QueueProcessingUnit(object):
 		"topic":["queue"],
 		"subscriber":["telegram_hospital"]
 		}
-		}
+		}'''
 		self.id_patient=1
 		self.queue={}
 		
+		self.my_data=json.loads(open("queueData.json").read())
+		self.my_data["queue_server"]["ip"]=socket.gethostbyname(socket.gethostname())
 
 	def configure(self):
 		
@@ -31,17 +35,19 @@ class QueueProcessingUnit(object):
 		self.thresh=self.result.json()[2]
 		self.tables=self.result.json()[3]
 
-		print(json.dumps(self.mqtt,indent=4))
-		print(json.dumps(self.ip_others,indent=4))
-		print(json.dumps(self.thresh,indent=4))		
-		print(json.dumps(self.tables,indent=4))
+		#print(json.dumps(self.mqtt,indent=4))
+		#print(json.dumps(self.ip_others,indent=4))
+		#print(json.dumps(self.thresh,indent=4))		
+		#print(json.dumps(self.tables,indent=4))
 
 	def getQueue(self):
 		return self.queue
 	
 	def processData(self):
-		r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/process")
-		self.dataToProcess=r.json()
+		self.r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/process")
+		dataToProcess=self.r.json()
+
+
 		position={}
 		i=1
 		for key in dataToProcess.keys():
@@ -91,7 +97,9 @@ class QueueProcessingUnit(object):
 		position={k: v for k, v in sorted(position.items(), key=lambda item: item[1])}
 
 		for key in position.keys():
-			self.queue[key]=self.dataToProcess[key]
+			self.queue[key]=dataToProcess[key]
+
+		print(self.queue)
 		
 		
 

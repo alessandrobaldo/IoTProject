@@ -5,16 +5,17 @@ import requests
 from telepot.loop import MessageLoop
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from threading import Timer
+import socket
 
 
 class TelegramHospitalChannel(object):
 	def __init__(self):
 		
-		self.flagExit=False
-		self.bot = telepot.Bot(self.token)
-		MessageLoop(self.bot, {'chat': self.on_chat_message}).run_as_thread()
+		
 
-		self.catalog="http://192.168.1.102:8080"
+		#self.catalog="http://192.168.1.103:8080"
+		self.catalog=json.loads(open("catalog.json").read())["catalog"]
+		'''
 		self.my_data={
 		"telegram_hospital":
 			{	
@@ -23,7 +24,14 @@ class TelegramHospitalChannel(object):
 			"chatId": "-1001154374015",
 			"token":"907874511:AAHOw03gFpIn4qcza8Emz88FLJd3xNbX9r4",
 			}
-		}
+		}'''
+		self.my_data=json.loads(open("channelData.json").read())
+		self.my_data["telegram_hospital"]["ip"]=socket.gethostbyname(socket.gethostname())
+
+		self.flagExit=False
+		self.bot = telepot.Bot(self.my_data["telegram_hospital"]["token"])
+		MessageLoop(self.bot, {'chat': self.on_chat_message}).run_as_thread()
+
 
 	def configure(self):
 		

@@ -1,0 +1,11 @@
+{
+	"telegram_triage":
+		{	
+		"ip":"",
+		"port":8086,
+		"chatId": "359387363",
+		"token":"957562924:AAFlHxtAxnFf02QF1U6Phvle2bH_wVEd1ns",
+		"topic":["inputdata"],
+		"subscriber":["queue_server"]
+		}
+}

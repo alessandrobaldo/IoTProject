@@ -10,9 +10,11 @@ class DatabaseServerREST(object):
 	exposed=True
 	
 	def GET(*uri,**params):
-		if(uri[0]=="process"):
+		
+		if(uri[1]=="process"):
+			print(json.loads(d.readDataQueue()))
 			return d.readDataQueue()
-		elif(uri[0]=="statistics"):
+		elif(uri[1]=="statistics"):
 			return d.readStatistics()
 	#Receiving data from QueueProcessing to insert them
 	def PUT(*uri,**params):
@@ -25,10 +27,12 @@ class DatabaseServerREST(object):
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
 		parameter=list(json_body.values())
 		keys=list(json_body.keys())
-		if(uri[0]=="sensors"):
+		if(uri[1]=="sensors"):
+			print("SENSORS")
 			d.insertDataSensors(json_body)
-		elif(uri[0]=="patients"):
+		elif(uri[1]=="patients"):
 			d.insertDataTelegram(json_body)
+			print("PATIENT")
 
 	def POST(*uri,**params):
 		json_obj={"db_server":"online"}
@@ -53,6 +57,6 @@ if __name__=='__main__':
 	
 	while True:
 		d.configure()
-		time.sleep(5)
+		time.sleep(10)
 
 	cherrypy.engine.block()

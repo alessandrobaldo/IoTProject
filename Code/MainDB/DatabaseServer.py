@@ -7,8 +7,11 @@ import requests
 
 class DatabaseServer(object):
 	def __init__(self):
-		self.catalog="http://192.168.1.102:8080"
-		self.my_data={
+		#self.catalog="http://192.168.1.103:8080"
+		self.catalog=json.loads(open("catalog.json").read())["catalog"]
+		
+		
+		'''self.my_data={
 			"db_server":
 				{	
 				"ip":socket.gethostbyname(socket.gethostname()),
@@ -18,7 +21,11 @@ class DatabaseServer(object):
 					"info_patients":[]
 					}
 				}
-		}
+		}'''
+
+		self.my_data=json.loads(open("dbData.json").read())
+		self.my_data["db_server"]["ip"]=socket.gethostbyname(socket.gethostname())
+		
 		try:
 			self.conn=mysql.connector.connect(user='root',password='',host='127.0.0.1',database='PatientsData')
 			self.cursor=self.conn.cursor()
@@ -87,23 +94,24 @@ class DatabaseServer(object):
 
 	def insertDataSensors(self,data):
 		
-		add_sensors_data=("INSERT INTO data_sensors (pressure_id,heart_id,glucose_id,pressure_min,pressure_max,rate,glucose,time_stamp) VALUES (%s,%s,%s,%s,%s,%s)")
+		add_sensors_data=("INSERT INTO data_sensors (pressure_id,heart_id,glucose_id,pressure_min,pressure_max,rate,glucose,time_stamp) VALUES (%s,%s,%s,%s,%s,%s,%s)")
 		data_patient=(data["pressure_id"],data["heart_id"],data["glucose_id"],data["pressure_min"],data["pressure_max"],data["rate"],data["glucose"],data["time_stamp"])
 		self.cursor.execute(add_sensors_data,data_patient)
 		self.conn.commit()
-		self.cursor.close()
+		
 
 	def insertDataTelegram(self,data):
 		
-		add_patients_data=("INSERT INTO info_patients (id_patient,pressure_id,heart_id,glucose_id,name,surname,age,height,weight,gender,code,unit,time_stamp) VALUES (%s,%s,%s,%s,%s,%s,%s)")
+		add_patients_data=("INSERT INTO info_patients (id_patient,pressure_id,heart_id,glucose_id,name,surname,age,height,weight,gender,code,unit,time_stamp) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)")
 		patient_registry=(data["id_patient"],data["pressure_id"],data["heart_id"],data["glucose_id"],data["name"],data["surname"],data["age"],data["height"],data["weight"],data["gender"],data["code"],data["unit"],data["time_stamp"])
 		self.cursor.execute(add_patients_data,patient_registry)
 		self.conn.commit()
-		self.cursor.close()
 
 	def removePatient(self, key):
 		query="SELECT pressure_id,heart_id,glucose_id FROM info_patient WHERE id_patient=%(key)s"
 		self.cursor.execute(query,{"key":key})
+		self.conn.commit()
+
 		result=self.cursor.fetchall()
 
 		sensors={}
@@ -119,9 +127,11 @@ class DatabaseServer(object):
 
 		query="DELETE FROM info_patients WHERE id_patient=%(key)s"
 		self.cursor.execute(query,{"key":key})
+		self.conn.commit()
 
 		query="DELETE FROM data_sensors WHERE id_patient=%(key)s"
 		self.cursor.execute(query,{"key":key})
+		self.conn.commit()
 
 
 	def readDataQueue(self):
@@ -213,3 +223,4 @@ class DatabaseServer(object):
 
 	def closeconn(self):
 		self.conn.close()
+		self.cursor.close()

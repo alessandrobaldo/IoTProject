@@ -64,16 +64,18 @@ class RegistryCatalogREST(object):
 
 				return_list=[json.loads(mqtt_topics),json.loads(ips)]
 				return json.dumps(return_list)
+
 			elif key=="ihealth_adapter":
 				r.insertIP("ihealth_adapter",json_body["ihealth_adapter"]["ip"],json_body["ihealth_adapter"]["port"])
 				ips=r.readMappings("ihealth_adapter")
-				return json.dumps(ips)
+				return json.dumps(json.loads(ips))
+
 			elif key=="telegram_hospital":
 				r.insertIP("telegram_hospital",json_body["telegram_hospital"]["ip"],json_body["telegram_hospital"]["port"])
 				r.insertInfoChat("telegram_hospital",json_body["telegram_hospital"]["chatId"],json_body["telegram_hospital"]["token"])
 				ips=r.readMappings("telegram_hospital")
 				mqtt_topics=r.readTopics("telegram_hospital")
-
+				print("AAAAAA")
 				return_list=[json.loads(mqtt_topics),json.loads(ips)]
 				return json.dumps(return_list)
 
@@ -86,6 +88,11 @@ class RegistryCatalogREST(object):
 
 				return_list=[json.loads(mqtt_topics),json.loads(ips),json.loads(available_sensors)]
 				return json.dumps(return_list)
+
+			elif key=="time_shift":
+				r.insertIP("time_shift",json_body["time_shift"]["ip"],json_body["time_shift"]["port"])
+				ips=r.readMappings("time_shift")
+				return json.dumps(json.loads(ips))
 
 			else:
 				raise cherrypy.HTTPError(400,"Invalid key")
@@ -106,7 +113,7 @@ class RegistryCatalogREST(object):
 		parameter=list(json_body.values())
 		keys=list(json_body.keys())
 
-		r.freeSensors(json_body)
+		r.releaseSensors(json_body)
 
 
 if __name__=='__main__':
@@ -117,7 +124,7 @@ if __name__=='__main__':
 	cherrypy.engine.start()
 	while True:
 		r.onlineServers()
-		time.sleep(1)
+		time.sleep(5)
 
 	cherrypy.engine.block()
 

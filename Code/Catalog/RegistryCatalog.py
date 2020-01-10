@@ -16,6 +16,7 @@ class RegistryCatalog(object):
 					CREATE TABLE `databases` (\
 					  `table` varchar(50) NOT NULL DEFAULT '',\
 					  `attribute` varchar(50) NOT NULL DEFAULT ''\
+					   PRIMARY KEY (`table`,`attribute`)\
 					) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
 					\
 					DROP TABLE IF EXISTS `mappings`; \
@@ -259,7 +260,7 @@ class RegistryCatalog(object):
 
 		r=print(json.loads(self.readAvailableSensors()))
 
-	def updateSensors(self,sensors):
+	def releaseSensors(self,sensors):
 		query="UPDATE sensors SET available=1 WHERE type=%s AND id=%s"
 		print(sensors)
 		self.cursor.execute(query,('pressure',sensors["pressure"]))

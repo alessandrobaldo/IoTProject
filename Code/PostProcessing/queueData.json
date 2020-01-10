@@ -1,0 +1,9 @@
+{
+	"queue_server":
+		{	
+		"ip":"",
+		"port":8082,
+		"topic":["queue"],
+		"subscriber":["telegram_hospital"]
+		}
+}

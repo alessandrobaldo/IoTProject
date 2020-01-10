@@ -52,6 +52,7 @@ class TriageRESTMQTT(object):
         
 
     def myPublish(self):
+        print("AAAAAA")
         self.message=json.loads(t.readyData())
         self._paho_mqtt.publish(self.topic, json.dumps(self.message), 2)
         
@@ -84,7 +85,7 @@ if __name__ == "__main__":
         t.configure()
         while(t.isReadyToSend()):
             server.myPublish()
-        time.sleep(2)
+        time.sleep(10)
     server.myUnsubscribe()
     server.stop()
     cherrypy.engine.block()

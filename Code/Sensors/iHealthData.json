@@ -1,0 +1,7 @@
+{
+	"ihealth_adapter":
+		{	
+		"ip":"",
+		"port":8084
+		}
+}

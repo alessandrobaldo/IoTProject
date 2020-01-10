@@ -41,7 +41,7 @@ if __name__=='__main__':
 	while True:
 		t.configure()
 		t.sendAlert()
-		time.sleep(2)
+		time.sleep(10)
 		
 
 	cherrypy.engine.block()

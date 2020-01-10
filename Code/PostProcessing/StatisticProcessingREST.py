@@ -30,7 +30,7 @@ class StatisticProcessingRESTMQTT(object):
 		self._paho_mqtt.on_connect = self.myOnConnect
 		#when you connect don't do the thing coded in the library, but my method of connection
 		self.topic=s.getTopicPublisher()
-		self.broker="eclipse.mosquitto.org"
+		self.broker="127.0.0.1"
 
 	def start(self):
 		self._paho_mqtt.connect(self.broker, 1883)
@@ -61,6 +61,6 @@ if __name__=='__main__':
 
 	while True:
 		s.configure()
-		time.sleep(5)
+		time.sleep(10)
 	server.stop()
 	cherrypy.engine.block()

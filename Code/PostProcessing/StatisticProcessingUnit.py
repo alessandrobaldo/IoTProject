@@ -6,7 +6,9 @@ import requests
 class StatisticProcessingUnit(object):
 	
 	def __init__(self):
-		self.catalog="http://192.168.1.102:8080"
+		#self.catalog="http://192.168.1.103:8080"
+		self.catalog=json.loads(open("catalog.json").read())["catalog"]
+		'''
 		self.my_data={
 		"statistic_server":
 		{	
@@ -15,9 +17,13 @@ class StatisticProcessingUnit(object):
 		"topic":["statistic"],
 		"subscriber":["telegram_triage"]
 		}
-		}
+		}'''
 		self.statistics={}
 		self.recall=0
+
+		self.my_data=json.loads(open("statisticData.json").read())
+		self.my_data["statistic_server"]["ip"]=socket.gethostbyname(socket.gethostname())
+
 
 	def configure(self):
 		

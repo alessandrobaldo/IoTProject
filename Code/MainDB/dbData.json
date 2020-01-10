@@ -1,0 +1,11 @@
+{
+	"db_server":
+		{	
+		"ip":"",
+		"port":8081,
+		"tables":{
+			"data_sensors":[],
+			"info_patients":[]
+			}
+		}
+}

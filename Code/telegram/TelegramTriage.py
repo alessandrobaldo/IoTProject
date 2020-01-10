@@ -12,7 +12,9 @@ class botTriage(object):
 	def __init__(self):
 
 		
-		self.catalog="http://192.168.1.102:8080"
+		#self.catalog="http://192.168.1.103:8080"
+		self.catalog=json.loads(open("catalog.json").read())["catalog"]
+		'''
 		self.my_data={
 		"telegram_triage":
 			{	
@@ -23,7 +25,11 @@ class botTriage(object):
 			"topic":["inputdata"],
 			"subscriber":["queue_server"],
 			}
-		}
+		}'''
+
+		self.my_data=json.loads(open("triageData.json").read())
+		self.my_data["telegram_triage"]["ip"]=socket.gethostbyname(socket.gethostname())
+
 
 		self.js={}
 		self.readyToSend=False
@@ -101,9 +107,9 @@ class botTriage(object):
 			self.height = msg['text']
 			self.flagHeight = False
 			self.flagCod = True
-			self.bot.sendMessage(chat_id, 'Cod (2,3,4, or 5):')
+			self.bot.sendMessage(chat_id, 'Code (2,3,4, or 5):')
 		elif self.flagCod == True and self.flagExit == False:
-			self.cod = msg['text']
+			self.code = msg['text']
 			self.flagCod = False
 			self.flagRep = True
 			self.bot.sendMessage(chat_id, 'Unit:')
@@ -179,12 +185,12 @@ class botTriage(object):
 					'gender': self.gender,
 					'weight': self.weight,
 					'height': self.height,
-					'cod': self.cod,
+					'code': self.code,
 					'unit': self.unit,
 					'pressure_id': self.IDpressure,
 					'heart_id': self.IDheart,
 					'glucose_id': self.IDglucose,
-					'time_stamp':time.time()
+					'time_stamp':time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 					}
 				self.readyToSend=True
 				self.bot.sendMessage(chat_id, 'Patient registered succesfully!')

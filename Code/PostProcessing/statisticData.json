@@ -1,0 +1,9 @@
+{
+	"statistic_server":
+		{	
+		"ip":"",
+		"port":8083,
+		"topic":["statistic"],
+		"subscriber":["telegram_triage"]
+		}
+}

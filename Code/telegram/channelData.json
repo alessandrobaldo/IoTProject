@@ -1,0 +1,9 @@
+{
+	"telegram_hospital":
+		{	
+		"ip":"",
+		"port":8085,
+		"chatId": "-1001154374015",
+		"token":"907874511:AAHOw03gFpIn4qcza8Emz88FLJd3xNbX9r4"
+		}
+}

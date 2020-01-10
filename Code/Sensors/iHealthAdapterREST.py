@@ -29,7 +29,7 @@ class iHealthAdapterREST(object):
 		glucose_id=json_body["glucose"]
 
 		data=json.loads(i.getDataFromCloud(pressure_id,heart_id,glucose_id))
-
+		print(data)
 		i.sendDataQueue(data)
 
 	def POST(*uri,**params):
@@ -46,7 +46,7 @@ if __name__=='__main__':
 	cherrypy.engine.start()
 	while True:
 		i.configure()
-		time.sleep(5)
+		time.sleep(10)
 	
 
 	cherrypy.engine.block()
