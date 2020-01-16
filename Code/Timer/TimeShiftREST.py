@@ -35,7 +35,7 @@ if __name__=='__main__':
 	conf = { '/': { 'request.dispatch': cherrypy.dispatch.MethodDispatcher(), 'tools.sessions.on': True } }
 	# building the web service
 	cherrypy.tree.mount(TimeShiftREST(), '/', conf)
-	cherrypy.config.update({"server.socket_host": socket.gethostbyname(socket.gethostname()), "server.socket_port": 8087})
+	cherrypy.config.update({"server.socket_host": t.getAddress(), "server.socket_port": 8087})
 	cherrypy.engine.start()
 	
 	while True:

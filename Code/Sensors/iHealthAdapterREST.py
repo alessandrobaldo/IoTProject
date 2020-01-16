@@ -42,7 +42,7 @@ if __name__=='__main__':
 	conf = { '/': { 'request.dispatch': cherrypy.dispatch.MethodDispatcher(), 'tools.sessions.on': True } }
 	# building the web service
 	cherrypy.tree.mount(iHealthAdapterREST(), '/', conf)
-	cherrypy.config.update({"server.socket_host": socket.gethostbyname(socket.gethostname()), "server.socket_port": 8084})
+	cherrypy.config.update({"server.socket_host": i.getAddress(), "server.socket_port": 8084})
 	cherrypy.engine.start()
 	while True:
 		i.configure()

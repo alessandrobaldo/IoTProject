@@ -5,6 +5,10 @@ import requests
 
 class TimeShift(object):
 	def __init__(self):
+		s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		s.connect(('8.8.8.8',80))
+		self.address=s.getsockname()[0]
+
 		self.scheduling={
 		"2":[],
 		"3":[],
@@ -23,9 +27,10 @@ class TimeShift(object):
 		}
 		}'''
 		self.my_data=json.loads(open("timeShiftData.json").read())
-		self.my_data["time_shift"]["ip"]=socket.gethostbyname(socket.gethostname())
+		self.my_data["time_shift"]["ip"]=self.address
 
-
+	def getAddress(self):
+		return self.address
 
 	def configure(self):
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))

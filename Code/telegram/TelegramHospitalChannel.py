@@ -11,8 +11,9 @@ import socket
 class TelegramHospitalChannel(object):
 	def __init__(self):
 		
-		
-
+		s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		s.connect(('8.8.8.8',80))
+		self.address=s.getsockname()[0]
 		#self.catalog="http://192.168.1.103:8080"
 		self.catalog=json.loads(open("catalog.json").read())["catalog"]
 		'''
@@ -26,12 +27,14 @@ class TelegramHospitalChannel(object):
 			}
 		}'''
 		self.my_data=json.loads(open("channelData.json").read())
-		self.my_data["telegram_hospital"]["ip"]=socket.gethostbyname(socket.gethostname())
+		self.my_data["telegram_hospital"]["ip"]=self.address
 
 		self.flagExit=False
 		self.bot = telepot.Bot(self.my_data["telegram_hospital"]["token"])
 		MessageLoop(self.bot, {'chat': self.on_chat_message}).run_as_thread()
 
+	def getAddress(self):
+		return self.address
 
 	def configure(self):
 		

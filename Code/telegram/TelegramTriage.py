@@ -11,7 +11,9 @@ from telegram.error import RetryAfter,TimedOut
 class botTriage(object):
 	def __init__(self):
 
-		
+		s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		s.connect(('8.8.8.8',80))
+		self.address=s.getsockname()[0]
 		#self.catalog="http://192.168.1.103:8080"
 		self.catalog=json.loads(open("catalog.json").read())["catalog"]
 		'''
@@ -28,7 +30,7 @@ class botTriage(object):
 		}'''
 
 		self.my_data=json.loads(open("triageData.json").read())
-		self.my_data["telegram_triage"]["ip"]=socket.gethostbyname(socket.gethostname())
+		self.my_data["telegram_triage"]["ip"]=self.address
 
 
 		self.js={}
@@ -57,6 +59,8 @@ class botTriage(object):
 		# associating the button with the callbacks
 		MessageLoop(self.bot, {'chat': self.on_chat_message,'callback_query': self.on_callback_query}).run_as_thread()
 
+	def getAddress(self):
+		return self.address
 		
 
 	def configure(self):

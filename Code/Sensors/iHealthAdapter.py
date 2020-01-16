@@ -9,6 +9,10 @@ from EmulatedSensors import GlucoseSensor, PressureSensor, HeartSensor
 
 class iHealthAdapter(object):
 	def __init__(self):
+		s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		s.connect(('8.8.8.8',80))
+		self.address=s.getsockname()[0]
+
 		#self.catalog="http://192.168.1.103:8080"
 		self.catalog=json.loads(open("catalog.json").read())["catalog"]
 		'''
@@ -24,8 +28,10 @@ class iHealthAdapter(object):
 		self.emulated_glucose=GlucoseSensor()
 
 		self.my_data=json.loads(open("iHealthData.json").read())
-		self.my_data["ihealth_adapter"]["ip"]=socket.gethostbyname(socket.gethostname())
+		self.my_data["ihealth_adapter"]["ip"]=self.address
 
+	def getAddress(self):
+		return self.address
 
 	def configure(self):
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))

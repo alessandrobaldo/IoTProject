@@ -116,11 +116,13 @@ class RegistryCatalogREST(object):
 		r.releaseSensors(json_body)
 
 
+
+
 if __name__=='__main__':
 	conf = { '/': { 'request.dispatch': cherrypy.dispatch.MethodDispatcher(), 'tools.sessions.on': True } }
 	# building the web service
 	cherrypy.tree.mount(RegistryCatalogREST(), '/', conf)
-	cherrypy.config.update({"server.socket_host": socket.gethostbyname(socket.gethostname()), "server.socket_port": 8080})
+	cherrypy.config.update({"server.socket_host": r.getAddress(), "server.socket_port": 8080})
 	cherrypy.engine.start()
 	while True:
 		r.onlineServers()

@@ -3,10 +3,13 @@ from mysql.connector import errorcode
 import json
 import time
 import requests
+import socket
 
 class RegistryCatalog(object):
 	def __init__(self):
-		
+		s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		s.connect(('8.8.8.8',80))
+		self.address=s.getsockname()[0]
 
 		try:
 			self.conn=mysql.connector.connect(user='root',password='',host='127.0.0.1',database='catalogdatabase')
@@ -142,8 +145,8 @@ class RegistryCatalog(object):
 		self.conn=mysql.connector.connect(**config)
 		'''
 		
-
-
+	def getAddress(self):
+		return self.address
 
 	def readThresholds(self):
 		query=("SELECT * FROM thresholds")

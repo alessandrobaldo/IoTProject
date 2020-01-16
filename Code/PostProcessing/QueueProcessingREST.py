@@ -115,7 +115,7 @@ if __name__=='__main__':
 	# building the web service
 	server=QueueProcessingRESTMQTT("queue_server")
 	cherrypy.tree.mount(server, '/', conf)
-	cherrypy.config.update({"server.socket_host": socket.gethostbyname(socket.gethostname()), "server.socket_port": 8082})
+	cherrypy.config.update({"server.socket_host": q.getAddress(), "server.socket_port": 8082})
 	cherrypy.engine.start()
 
 	server.start()

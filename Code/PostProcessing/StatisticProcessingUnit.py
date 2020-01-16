@@ -6,6 +6,9 @@ import requests
 class StatisticProcessingUnit(object):
 	
 	def __init__(self):
+		s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		s.connect(('8.8.8.8',80))
+		self.address=s.getsockname()[0]
 		#self.catalog="http://192.168.1.103:8080"
 		self.catalog=json.loads(open("catalog.json").read())["catalog"]
 		'''
@@ -22,8 +25,10 @@ class StatisticProcessingUnit(object):
 		self.recall=0
 
 		self.my_data=json.loads(open("statisticData.json").read())
-		self.my_data["statistic_server"]["ip"]=socket.gethostbyname(socket.gethostname())
+		self.my_data["statistic_server"]["ip"]=self.address
 
+	def getAddress(self):
+		return self.address
 
 	def configure(self):
 		

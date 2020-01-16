@@ -7,6 +7,9 @@ import requests
 
 class DatabaseServer(object):
 	def __init__(self):
+		s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		s.connect(('8.8.8.8',80))
+		self.address=s.getsockname()[0]
 		#self.catalog="http://192.168.1.103:8080"
 		self.catalog=json.loads(open("catalog.json").read())["catalog"]
 		
@@ -24,7 +27,7 @@ class DatabaseServer(object):
 		}'''
 
 		self.my_data=json.loads(open("dbData.json").read())
-		self.my_data["db_server"]["ip"]=socket.gethostbyname(socket.gethostname())
+		self.my_data["db_server"]["ip"]=self.address
 		
 		try:
 			self.conn=mysql.connector.connect(user='root',password='',host='127.0.0.1',database='PatientsData')
@@ -84,7 +87,12 @@ class DatabaseServer(object):
 
 		self.conn=mysql.connector.connect(**config)
 		'''
+
+	def getAddress(self):
+		return self.address
+
 	def configure(self):
+		print("Imconfiguring")
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))
 		self.ip_others=self.result.json()
 		print(json.dumps(self.ip_others,indent=4))
