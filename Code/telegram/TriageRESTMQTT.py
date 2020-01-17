@@ -64,7 +64,17 @@ class TriageRESTMQTT(object):
         pass
 
     def POST(*uri,**params):
-        return "online"
+        body=cherrypy.request.body.read()
+        try:
+            json_body=json.loads(body.decode('utf-8'))
+
+        except:
+            raise cherrypy.HTTPError(400,"ERROR body is empty")
+        
+
+        t.setData(json_body)
+        print(json_body)
+        return json.dumps(t.getData())
 
     def DELETE(*uri,**params):
         pass
@@ -79,10 +89,10 @@ if __name__ == "__main__":
     i=0
     server.start()
     
-
+    t.configure()
     while True:
         server.mySubscribe()
-        t.configure()
+        
         while(t.isReadyToSend()):
             server.myPublish()
         time.sleep(10)

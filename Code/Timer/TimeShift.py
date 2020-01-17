@@ -32,6 +32,14 @@ class TimeShift(object):
 	def getAddress(self):
 		return self.address
 
+	def getData(self):
+		return self.my_data
+
+	def setData(sef,data):
+		self.ip_others=data
+		print(json.dumps(self.ip_others,indent=4))
+
+
 	def configure(self):
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))
 		self.ip_others=self.result.json()

@@ -19,7 +19,16 @@ class StatisticProcessingRESTMQTT(object):
 		pass
 
 	def POST(*uri,**params):
-		return "online"
+		body=cherrypy.request.body.read()
+		try:
+			json_body=json.loads(body.decode('utf-8'))
+
+		except:
+			raise cherrypy.HTTPError(400,"ERROR body is empty")
+		
+		s.setData(json_body)
+		print(json_body)
+		return json.dumps(s.getData())
 
 	def DELETE(*uri,**params):
 		pass
@@ -58,10 +67,10 @@ if __name__=='__main__':
 	cherrypy.engine.start()
 
 	server.start()
-
+	s.configure()
 
 	while True:
-		s.configure()
-		time.sleep(10)
+		time.sleep(1)
+		
 	server.stop()
 	cherrypy.engine.block()

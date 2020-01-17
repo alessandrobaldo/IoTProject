@@ -53,7 +53,16 @@ class ChannelRESTMQTT(object):
 		pass
 
 	def POST(*uri,**params):
-		return "online"
+		body=cherrypy.request.body.read()
+		try:
+			json_body=json.loads(body.decode('utf-8'))
+
+		except:
+			raise cherrypy.HTTPError(400,"ERROR body is empty")
+		
+		t.setData(json_body)
+		print(json_body)
+		return json.dumps(t.getData())
 
 	def DELETE(*uri,**params):
 		pass
@@ -68,9 +77,8 @@ if __name__ == "__main__":
 
 	server.start()
 	server.mySubscribe()
-
+	t.configure()
 	while True and t.getFlag()==False:
-		t.configure()
 		time.sleep(10)
 
 	server.myUnsubscribe()

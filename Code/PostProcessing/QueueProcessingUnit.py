@@ -30,7 +30,22 @@ class QueueProcessingUnit(object):
 
 	def getAddress(self):
 		return self.address
-		
+
+	def getData(self):
+		return self.my_data
+
+	def setData(self,data):
+		self.mqtt=data[0]
+		self.ip_others=data[1]
+		self.thresh=data[2]
+		self.tables=data[3]
+
+		print(json.dumps(self.mqtt,indent=4))
+		print(json.dumps(self.ip_others,indent=4))
+		print(json.dumps(self.thresh,indent=4))		
+		print(json.dumps(self.tables,indent=4))
+
+
 	def configure(self):
 		
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))
@@ -40,10 +55,10 @@ class QueueProcessingUnit(object):
 		self.thresh=self.result.json()[2]
 		self.tables=self.result.json()[3]
 
-		#print(json.dumps(self.mqtt,indent=4))
-		#print(json.dumps(self.ip_others,indent=4))
-		#print(json.dumps(self.thresh,indent=4))		
-		#print(json.dumps(self.tables,indent=4))
+		print(json.dumps(self.mqtt,indent=4))
+		print(json.dumps(self.ip_others,indent=4))
+		print(json.dumps(self.thresh,indent=4))		
+		print(json.dumps(self.tables,indent=4))
 
 	def getQueue(self):
 		return self.queue
@@ -54,13 +69,16 @@ class QueueProcessingUnit(object):
 
 
 		position={}
+		history_positions={}
 		i=1
 		for key in dataToProcess.keys():
 			position[key]=i
+			history_positions[key]=[]
+			history_positions[key][0]=i
 			i+=1
 		
 		for i in range(len(dataToProcess.keys())-1):
-			for j in range(1,len(dataToProcess.keys())):
+			for j in range(i+1,len(dataToProcess.keys())):
 				key1=dataToProcess.keys()[i]
 				key2=dataToProcess.keys()[j]
 
@@ -97,6 +115,26 @@ class QueueProcessingUnit(object):
 							position2=position[key2]
 							position[key2]=position[key1]
 							position[key1]=position2
+
+							history_positions[key1].append(position[key1])
+							history_positions[key2].append(position[key2])
+
+
+		for key in history_positions.keys():
+			if(dataToProcess[key]["code"]!=2):
+				if(len(history_positions[key])>=5):
+					trend=0
+					for i in range(1, len(history_positions[key])):
+						age=int(dataToProcess[key]["age"])
+						minPres=dataToProcess[key]["pressure_min"]
+						maxPres=dataToProcess[key]["pressure_max"]
+						rate=dataToProcess[key]["rate"]
+						glucose=dataToProcess[key]["glucose"]
+
+						if(history_positions[key][i]<history_positions[key][i-1] or (history_positions[key][i]==history_positions[key][i-1] and self.manageQueueInit(key,age,minPres,maxPres,glucose,rate)!=0)):
+							trend+=1
+					if(trend>=5):
+						dataToProcess[key]["code"]=dataToProcess[key]["code"]-1		
 
 		
 		position={k: v for k, v in sorted(position.items(), key=lambda item: item[1])}

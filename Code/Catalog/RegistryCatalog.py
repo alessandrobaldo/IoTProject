@@ -244,8 +244,79 @@ class RegistryCatalog(object):
 			self.cursor.execute(query)
 			result=self.cursor.fetchall()
 			for row in result:
+				key=row[0]
 				try:
-					r=requests.post("http://"+row[1]+":"+row[2])
+					if key=="queue_server":
+						mqtt_topics=self.readTopics(key)
+						ips=self.readMappings(key)
+						thresh=self.readThresholds()
+						tables=self.readTables()
+						return_list=[json.loads(mqtt_topics),json.loads(ips),json.loads(thresh),json.loads(tables)]
+						data=json.dumps(return_list)
+						
+					elif key=="db_server":
+						ips=self.readMappings(key)
+						data=ips
+
+					elif key=="statistic_server":
+						mqtt_topics=self.readTopics(key)
+						ips=self.readMappings(key)
+						return_list=[json.loads(mqtt_topics),json.loads(ips)]
+						data=json.dumps(return_list)
+
+					elif key=="ihealth_adapter":
+						ips=self.readMappings(key)
+						data=json.dumps(json.loads(ips))
+
+					elif key=="telegram_hospital":
+						ips=self.readMappings(key)
+						mqtt_topics=self.readTopics(key)
+						return_list=[json.loads(mqtt_topics),json.loads(ips)]
+						data=json.dumps(return_list)
+
+					elif key=="telegram_triage":
+						ips=self.readMappings(key)
+						mqtt_topics=self.readTopics(key)
+						available_sensors=self.readAvailableSensors()
+						return_list=[json.loads(mqtt_topics),json.loads(ips),json.loads(available_sensors)]
+						data=json.dumps(return_list)
+
+					elif key=="time_shift":
+						ips=self.readMappings(key)
+						data=json.dumps(json.loads(ips))
+
+					r=requests.post("http://"+row[1]+":"+row[2],data)
+					json_body=r.json()
+					
+					for key in json_body.keys():
+						if key=="queue_server":
+							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+							self.insertTopic(json_body[key],key)
+								
+						elif key=="db_server":
+							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+							self.insertTable(json_body[key]["tables"])
+
+						elif key=="statistic_server":
+							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+							self.insertTopic(json_body[key],key)
+							
+						elif key=="ihealth_adapter":
+							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+
+						elif key=="telegram_hospital":
+							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+							self.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
+
+						elif key=="telegram_triage":
+							self.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
+							self.insertTopic(json_body[key],key)
+							
+						elif key=="time_shift":
+							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+
+						else:
+							raise cherrypy.HTTPError(400,"Invalid key")
 					
 				except:
 					self.removeIP(row[0])

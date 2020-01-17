@@ -35,8 +35,15 @@ class DatabaseServerREST(object):
 			print("PATIENT")
 
 	def POST(*uri,**params):
-		json_obj={"db_server":"online"}
-		return json.dumps(json_obj)
+		body=cherrypy.request.body.read()
+		try:
+			json_body=json.loads(body.decode('utf-8'))
+			
+
+		except:
+			raise cherrypy.HTTPError(400,"ERROR body is empty")
+		d.setData(json_body)
+		return json.dumps(d.getData())
 
 	def DELETE(*uri,**params):
 		body=cherrypy.request.body.read()
@@ -54,9 +61,8 @@ if __name__=='__main__':
 	cherrypy.tree.mount(DatabaseServerREST(), '/', conf)
 	cherrypy.config.update({"server.socket_host": d.getAddress(), "server.socket_port": 8081})
 	cherrypy.engine.start()
-	
+	d.configure()
 	while True:
-		d.configure()
-		time.sleep(10)
+		time.sleep(1)
 
 	cherrypy.engine.block()

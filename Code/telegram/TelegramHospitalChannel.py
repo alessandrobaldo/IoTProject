@@ -36,6 +36,16 @@ class TelegramHospitalChannel(object):
 	def getAddress(self):
 		return self.address
 
+	def getData(self):
+		return self.my_data
+
+	def setData(self,data):
+		self.mqtt=data[0]
+		self.ip_others=data[1]
+
+		print(json.dumps(self.mqtt,indent=4))
+		print(json.dumps(self.ip_others,indent=4))
+
 	def configure(self):
 		
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))

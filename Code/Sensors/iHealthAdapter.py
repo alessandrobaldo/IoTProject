@@ -30,8 +30,15 @@ class iHealthAdapter(object):
 		self.my_data=json.loads(open("iHealthData.json").read())
 		self.my_data["ihealth_adapter"]["ip"]=self.address
 
+	def getData(self):
+		return self.my_data
+
 	def getAddress(self):
 		return self.address
+
+	def setData(self,data):
+		self.ip_others=data
+		print(json.dumps(self.ip_others,indent=4))
 
 	def configure(self):
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))

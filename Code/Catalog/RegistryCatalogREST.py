@@ -41,57 +41,57 @@ class RegistryCatalogREST(object):
 		
 		for key in keys:
 			if key=="queue_server":
-				r.insertIP("queue_server",json_body["queue_server"]["ip"],json_body["queue_server"]["port"])
-				r.insertTopic(json_body["queue_server"],"queue_server")
-				mqtt_topics=r.readTopics("queue_server")
-				ips=r.readMappings("queue_server")
+				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+				r.insertTopic(json_body[key],key)
+				mqtt_topics=r.readTopics(key)
+				ips=r.readMappings(key)
 				thresh=r.readThresholds()
 				tables=r.readTables()
 				return_list=[json.loads(mqtt_topics),json.loads(ips),json.loads(thresh),json.loads(tables)]
 				return json.dumps(return_list)
 				
 			elif key=="db_server":
-				r.insertIP("db_server",json_body["db_server"]["ip"],json_body["db_server"]["port"])
-				r.insertTable(json_body["db_server"]["tables"])
-				ips=r.readMappings("db_server")
+				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+				r.insertTable(json_body[key]["tables"])
+				ips=r.readMappings(key)
 				return ips
 
 			elif key=="statistic_server":
-				r.insertIP("statistic_server",json_body["statistic_server"]["ip"],json_body["statistic_server"]["port"])
-				r.insertTopic(json_body["statistic_server"],"statistic_server")
-				mqtt_topics=r.readTopics("statistic_server")
-				ips=r.readMappings("statistic_server")
+				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+				r.insertTopic(json_body[key],key)
+				mqtt_topics=r.readTopics(key)
+				ips=r.readMappings(key)
 
 				return_list=[json.loads(mqtt_topics),json.loads(ips)]
 				return json.dumps(return_list)
 
 			elif key=="ihealth_adapter":
-				r.insertIP("ihealth_adapter",json_body["ihealth_adapter"]["ip"],json_body["ihealth_adapter"]["port"])
-				ips=r.readMappings("ihealth_adapter")
+				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+				ips=r.readMappings(key)
 				return json.dumps(json.loads(ips))
 
 			elif key=="telegram_hospital":
-				r.insertIP("telegram_hospital",json_body["telegram_hospital"]["ip"],json_body["telegram_hospital"]["port"])
-				r.insertInfoChat("telegram_hospital",json_body["telegram_hospital"]["chatId"],json_body["telegram_hospital"]["token"])
-				ips=r.readMappings("telegram_hospital")
-				mqtt_topics=r.readTopics("telegram_hospital")
+				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+				r.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
+				ips=r.readMappings(key)
+				mqtt_topics=r.readTopics(key)
 				print("AAAAAA")
 				return_list=[json.loads(mqtt_topics),json.loads(ips)]
 				return json.dumps(return_list)
 
 			elif key=="telegram_triage":
-				r.insertInfoChat("telegram_triage",json_body["telegram_triage"]["chatId"],json_body["telegram_triage"]["token"])
-				r.insertTopic(json_body["telegram_triage"],"telegram_triage")
-				ips=r.readMappings("telegram_triage")
-				mqtt_topics=r.readTopics("telegram_triage")
+				r.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
+				r.insertTopic(json_body[key],key)
+				ips=r.readMappings(key)
+				mqtt_topics=r.readTopics(key)
 				available_sensors=r.readAvailableSensors()
 
 				return_list=[json.loads(mqtt_topics),json.loads(ips),json.loads(available_sensors)]
 				return json.dumps(return_list)
 
 			elif key=="time_shift":
-				r.insertIP("time_shift",json_body["time_shift"]["ip"],json_body["time_shift"]["port"])
-				ips=r.readMappings("time_shift")
+				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
+				ips=r.readMappings(key)
 				return json.dumps(json.loads(ips))
 
 			else:

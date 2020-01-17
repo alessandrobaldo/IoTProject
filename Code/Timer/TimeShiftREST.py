@@ -20,12 +20,20 @@ class TimeShiftREST(object):
 		except:
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
 		
-		parameter=list(json_body.values())
-		keys=list(json_body.keys())
-		
 		t.addToScheduling(json.dumps(json_body))
 	def POST(*uri,**params):
-		pass
+		body=cherrypy.request.body.read()
+		try:
+			json_body=json.loads(body.decode('utf-8'))
+
+		except:
+			raise cherrypy.HTTPError(400,"ERROR body is empty")
+		parameter=list(json_body.values())
+		keys=list(json_body.keys())
+
+		t.setData(json_body)
+		print(json_body)
+		return json.dumps(t.getData())
 		
 	def DELETE(*uri,**params):
 		pass
@@ -38,10 +46,10 @@ if __name__=='__main__':
 	cherrypy.config.update({"server.socket_host": t.getAddress(), "server.socket_port": 8087})
 	cherrypy.engine.start()
 	
+	t.configure()
 	while True:
-		t.configure()
 		t.sendAlert()
-		time.sleep(10)
+		time.sleep(5)
 		
 
 	cherrypy.engine.block()

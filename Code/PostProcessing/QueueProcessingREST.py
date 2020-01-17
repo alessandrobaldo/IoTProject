@@ -40,7 +40,16 @@ class QueueProcessingRESTMQTT(object):
 
 
 	def POST(*uri,**params):
-		return "online"
+		body=cherrypy.request.body.read()
+		try:
+			json_body=json.loads(body.decode('utf-8'))
+
+		except:
+			raise cherrypy.HTTPError(400,"ERROR body is empty")
+		
+		q.setData(json_body)
+		print(json_body)
+		return json.dumps(q.getData())
 
 	def DELETE(*uri,**params):
 		pass
@@ -120,10 +129,9 @@ if __name__=='__main__':
 
 	server.start()
 	
-	
+	q.configure()
 	i=0
 	while True:
-		q.configure()
 		server.mySubscribe()
 		q.processData()
 		time.sleep(10)
