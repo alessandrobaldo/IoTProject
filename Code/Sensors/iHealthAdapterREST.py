@@ -9,27 +9,25 @@ i=iHealthAdapter()
 class iHealthAdapterREST(object):
 	exposed=True
 	
+	#Receiving request from queue server to send data about sensors with id1,id2,id3
+
 	def GET(*uri,**params):
-		pass
+		
+		if(len(uri)!=0):
+			try:
+				pressure_id=uri[0]
+				heart_id=uri[1]
+				glucose_id=uri[2]
+
+				data=json.loads(i.getDataFromCloud(pressure_id,heart_id,glucose_id))
+				return json.dumps(data)
+			except:
+				raise cherrypy.HTTPError(400,"Invalid parameters")
 
 	def PUT(*uri,**params):
-		#Receiving request from queue server to send data about sensors with id1,id2,id3
-		body=cherrypy.request.body.read()
-		try:
-			json_body=json.loads(body.decode('utf-8'))
+		pass
 
-		except:
-			raise cherrypy.HTTPError(400,"ERROR body is empty")
-		
-		
-		pressure_id=json_body["pressure"]
-		heart_id=json_body["heart"]
-		glucose_id=json_body["glucose"]
-
-		data=json.loads(i.getDataFromCloud(pressure_id,heart_id,glucose_id))
-		print(data)
-		i.sendDataQueue(data)
-
+	'''DATA REQUESTED BY CATALOG'''
 	def POST(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
@@ -55,6 +53,7 @@ if __name__=='__main__':
 	cherrypy.engine.start()
 	i.configure()
 	while True:
+		time.sleep(1)
 		
 	
 

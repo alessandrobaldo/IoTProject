@@ -11,7 +11,8 @@ class TimeShiftREST(object):
 	
 	def GET(*uri,**params):
 		pass
-		
+	
+	'''DATA TO ADD TO SCHEDULING'''
 	def PUT(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
@@ -21,6 +22,9 @@ class TimeShiftREST(object):
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
 		
 		t.addToScheduling(json.dumps(json_body))
+
+	'''DATA REQUESTED BY CATALOG'''
+	
 	def POST(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:

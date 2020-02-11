@@ -47,12 +47,13 @@ class TriageRESTMQTT(object):
     def myOnConnect (self, paho_mqtt, userdata, flags, rc):
         print ("Connected to %s with result code: %d" % (self.messageBroker, rc))
 
+    '''DATA RECEIVED BY STATISTIC'''
     def myOnMessageReceived (self, paho_mqtt , userdata, msg):
         message=json.loads(msg.payload)
+        #PUBLISH ON THE BOT CHAT
         
-
+    '''PUBLISHING DATA TO QUEUE ABOUT NEW PATIENT'''
     def myPublish(self):
-        print("AAAAAA")
         self.message=json.loads(t.readyData())
         self._paho_mqtt.publish(self.topic, json.dumps(self.message), 2)
         
@@ -63,6 +64,7 @@ class TriageRESTMQTT(object):
     def PUT(*uri,**params):
         pass
 
+    '''DATA REQUESTED BY CATALOG'''
     def POST(*uri,**params):
         body=cherrypy.request.body.read()
         try:

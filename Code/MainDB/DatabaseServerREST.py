@@ -9,6 +9,7 @@ d=DatabaseServer()
 class DatabaseServerREST(object):
 	exposed=True
 	
+	'''RETRIEVING DATA FOR THE PROCESSINGS'''
 	def GET(*uri,**params):
 		
 		if(uri[1]=="process"):
@@ -16,7 +17,9 @@ class DatabaseServerREST(object):
 			return d.readDataQueue()
 		elif(uri[1]=="statistics"):
 			return d.readStatistics()
-	#Receiving data from QueueProcessing to insert them
+
+	'''Receiving data from QueueProcessing to insert them'''
+
 	def PUT(*uri,**params):
 
 		body=cherrypy.request.body.read()
@@ -27,24 +30,25 @@ class DatabaseServerREST(object):
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
 		parameter=list(json_body.values())
 		keys=list(json_body.keys())
-		if(uri[1]=="sensors"):
+		if(uri[0]=="sensors"):
 			print("SENSORS")
 			d.insertDataSensors(json_body)
-		elif(uri[1]=="patients"):
+		elif(uri[0]=="patients"):
 			d.insertDataTelegram(json_body)
 			print("PATIENT")
+
+	'''DATA REQUESTED BY THE REGISTRY CATALOG'''
 
 	def POST(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
 			json_body=json.loads(body.decode('utf-8'))
-			
-
 		except:
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
 		d.setData(json_body)
 		return json.dumps(d.getData())
 
+	'''PATIENT PROCESSED'''
 	def DELETE(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:

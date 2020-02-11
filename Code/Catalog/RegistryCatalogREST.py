@@ -13,6 +13,7 @@ class RegistryCatalogREST(object):
 	def GET(*uri,**params):
 		pass
 
+	'''TELEGRAM RESPONSE'''
 	def PUT(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
@@ -24,6 +25,9 @@ class RegistryCatalogREST(object):
 		
 		r.updateSensors(json_body)
 
+		return r.readAvailableSensors()
+
+	'''RESPONE TO THE INITIALIZATION OF ALL THE SERVERS'''
 	def POST(*uri,**params):
 		#Managing the configuration
 		
@@ -75,7 +79,6 @@ class RegistryCatalogREST(object):
 				r.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
 				ips=r.readMappings(key)
 				mqtt_topics=r.readTopics(key)
-				print("AAAAAA")
 				return_list=[json.loads(mqtt_topics),json.loads(ips)]
 				return json.dumps(return_list)
 
@@ -101,7 +104,7 @@ class RegistryCatalogREST(object):
 	
 
 
-
+	'''TELEGRAM SENSORS RELEASE'''
 	def DELETE(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
@@ -126,7 +129,7 @@ if __name__=='__main__':
 	cherrypy.engine.start()
 	while True:
 		r.onlineServers()
-		time.sleep(5)
+		time.sleep(1)
 
 	cherrypy.engine.block()
 

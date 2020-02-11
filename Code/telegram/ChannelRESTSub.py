@@ -4,6 +4,7 @@ import json
 import socket
 import cherrypy
 from TelegramHospitalChannel import TelegramHospitalChannel
+
 t=TelegramHospitalChannel()
 
 class ChannelRESTMQTT(object):
@@ -28,6 +29,7 @@ class ChannelRESTMQTT(object):
 	def myOnConnect (self, paho_mqtt, userdata, flags, rc):
 		print ("Connected to %s with result code: %d" % (self.broker, rc))
 
+	'''RECEIVING MESSAGE TO PUBLISH IN THE CHANNEL'''
 	def myOnMessageReceived (self, paho_mqtt , userdata, msg):
 		message=json.loads(msg.payload)
 		t.send_message(message)
@@ -52,6 +54,7 @@ class ChannelRESTMQTT(object):
 	def PUT(*uri,**params):
 		pass
 
+	'''DATA REQUESTED BY CATALOG'''
 	def POST(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:

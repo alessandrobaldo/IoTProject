@@ -64,6 +64,7 @@ class QueueProcessingUnit(object):
 		return self.queue
 	
 	def processData(self):
+		'''ASKING THE DB SERVER DATA OF CURRENT PATIENTS'''
 		self.r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/process")
 		dataToProcess=self.r.json()
 
@@ -145,7 +146,7 @@ class QueueProcessingUnit(object):
 		print(self.queue)
 		
 		
-
+	'''FUNCTION TO MANAGE POSITION IN THE QUEUE'''
 	def manageQueueInit(self, key,age, minPres,maxPres,glucose,rate):
 		flag=0
 		if(age<=25):
@@ -387,7 +388,9 @@ class QueueProcessingUnit(object):
 		"glucose":id3
 		}
 
-		r=requests.put("http://"+self.ip_others["ihealth_adapter"][0]+":"+self.ip_others["ihealth_adapter"][1],json.dumps(sensors))
+		r=requests.get("http://"+self.ip_others["ihealth_adapter"][0]+":"+self.ip_others["ihealth_adapter"][1]+"/"+sensors["pressure"]+"/"+sensors["heart"]+"/"+sensors["glucose"])
+		self.sendDataDatabase("sensors",json.dumps(r.json()))
+
 
 	def getCurrentPatient(self):
 		self.id_patient+=1

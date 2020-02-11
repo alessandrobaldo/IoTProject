@@ -10,11 +10,13 @@ q=QueueProcessingUnit()
 
 class QueueProcessingRESTMQTT(object):
 	exposed=True
-	#Time Shift tell it to retrieve data
+	
+	'''TIME SHIFT REQUEST DATA'''
 	def GET(*uri,**params):
 		if(uri[0]=="retrieve"):
 			q.askDataSensors(params["pressure_id"],params["heart_id"],params["glucose_id"])
-	#Used when iHealth Adapter sends data to put into DB
+
+	'''iHEALTH ADAPTER PUTTING DATA INTO DB'''
 	def PUT(*uri,**params):
 
 		body=cherrypy.request.body.read()
@@ -38,7 +40,7 @@ class QueueProcessingRESTMQTT(object):
 		return_res["return"]="done"
 		return json.dumps(return_res)
 
-
+	'''REGISTRY CATALOG REQUESTS INFORMATION'''
 	def POST(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
@@ -75,8 +77,8 @@ class QueueProcessingRESTMQTT(object):
 		self._paho_mqtt.loop_stop()
 		self._paho_mqtt.disconnect()
 
+	'''PUBLISHING ON TELEGRAM CHANNEL'''
 	def myPublish(self,message):
-		# publish a message with a certain topic
 		self._paho_mqtt.publish(self.topic, json.dumps(message))
 		
 
@@ -96,7 +98,7 @@ class QueueProcessingRESTMQTT(object):
 		self.subscribed=False
 
 	def myOnMessageReceived(self, paho_mqtt , userdata, msg):
-			# A new message is received
+			'''RECEIVING DATA FROM TELEGRAM ABOUT A NEW PATIENT'''
 			
 			message=json.loads(msg.payload)
 			print(message)
@@ -114,9 +116,10 @@ class QueueProcessingRESTMQTT(object):
 			"code":code,
 			"time_stamp":time_stamp
 			}
-			print("CCCCCC")
 			q.askDataSensors(id1,id2,id3)
 			q.sendDataDatabase("patients",message)
+
+			'''NOTIFYING TIME SHIFT OF THE ARRIVAL OF A NEW PATIENT'''
 			r=requests.put("http://"+self.ip_others["time_shift"][0]+":"+self.ip_others["time_shift"][1],json.dumps(data))
 			
 if __name__=='__main__':

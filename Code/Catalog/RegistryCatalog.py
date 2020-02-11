@@ -7,10 +7,13 @@ import socket
 
 class RegistryCatalog(object):
 	def __init__(self):
+
+		#Initialization of the own address
 		s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 		s.connect(('8.8.8.8',80))
 		self.address=s.getsockname()[0]
 
+		#Creation of the database of the Catalog
 		try:
 			self.conn=mysql.connector.connect(user='root',password='',host='127.0.0.1',database='catalogdatabase')
 			self.cursor=self.conn.cursor()
@@ -148,6 +151,8 @@ class RegistryCatalog(object):
 	def getAddress(self):
 		return self.address
 
+	'''DATA MANIPULATION'''
+
 	def readThresholds(self):
 		query=("SELECT * FROM thresholds")
 		self.cursor.execute(query)
@@ -211,6 +216,8 @@ class RegistryCatalog(object):
 	def closeconn(self):
 		self.cursor.close()
 		self.conn.close()
+
+	'''DATA UPDATE/INSERT'''
 
 	def insertIP(self,server,ip,port):
 		query="INSERT INTO mappings (server,ip,port) VALUES (%s,%s,%s) ON DUPLICATE KEY UPDATE ip=%s"
@@ -285,6 +292,7 @@ class RegistryCatalog(object):
 						ips=self.readMappings(key)
 						data=json.dumps(json.loads(ips))
 
+					'''ASKING DATA TO THE SERVERS'''
 					r=requests.post("http://"+row[1]+":"+row[2],data)
 					json_body=r.json()
 					
@@ -324,7 +332,8 @@ class RegistryCatalog(object):
 		except:
 			print("No servers online at this moment")
 	
-	#update 
+	'''SENSORS AVAILABILITY'''
+
 	def updateSensors(self,sensors):
 		query="UPDATE sensors SET available=0 WHERE type=%s AND id=%s"
 		print(sensors)

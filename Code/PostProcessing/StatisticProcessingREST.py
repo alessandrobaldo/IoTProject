@@ -18,6 +18,7 @@ class StatisticProcessingRESTMQTT(object):
 	def PUT(*uri,**params):
 		pass
 
+	'''DATA REQUESTED BY CATALOG'''
 	def POST(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
@@ -52,8 +53,8 @@ class StatisticProcessingRESTMQTT(object):
 		self._paho_mqtt.loop_stop()
 		self._paho_mqtt.disconnect()
 
+	'''PUBLISHING ON BOT CHAT'''
 	def myPublish(self,message):
-		# publish a message with a certain topic
 		self._paho_mqtt.publish(self.topic, json.dumps(message))
 		
 

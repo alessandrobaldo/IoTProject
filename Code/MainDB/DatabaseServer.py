@@ -29,6 +29,7 @@ class DatabaseServer(object):
 		self.my_data=json.loads(open("dbData.json").read())
 		self.my_data["db_server"]["ip"]=self.address
 		
+		'''CREATION OF THE DATABASE'''
 		try:
 			self.conn=mysql.connector.connect(user='root',password='',host='127.0.0.1',database='PatientsData')
 			self.cursor=self.conn.cursor()
@@ -146,6 +147,7 @@ class DatabaseServer(object):
 		self.cursor.execute(query,{"key":key})
 		self.conn.commit()
 
+	'''DATA QUEUE PROCESSING'''
 
 	def readDataQueue(self):
 		query="SELECT i.id_patient, d.pressure_min, d.pressure_max, d.rate, d.glucose, i.code, i.age, i.time_stamp FROM data_sensors d, info_patients i WHERE d.pressure_id=i.pressure_id AND d.heart_id=i.heart_id AND d.glucose_id=i.glucose_id ORDER BY i.code ASC"
@@ -163,6 +165,8 @@ class DatabaseServer(object):
 			queue[row[0]]["time_stamp"]=row[7]
 
 		return json.dumps(queue)
+
+	'''DATA STATISTIC PROCESSING'''
 
 	def readStatistics(self):
 

@@ -9,6 +9,7 @@ class TimeShift(object):
 		s.connect(('8.8.8.8',80))
 		self.address=s.getsockname()[0]
 
+		'''SAVING NEXT PROCESSING TIME FOR EACH PATIENT'''
 		self.scheduling={
 		"2":[],
 		"3":[],

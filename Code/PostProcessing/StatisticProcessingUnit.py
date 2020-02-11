@@ -49,7 +49,8 @@ class StatisticProcessingUnit(object):
 
 		print(json.dumps(self.mqtt,indent=4))
 		print(json.dumps(self.ip_others,indent=4))
-		
+	
+	'''PROCESSING STATISTICS READ FROM DB'''
 	def processData(self, data):
 		r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/statistics")
 		self.dataToProcess=r.json()

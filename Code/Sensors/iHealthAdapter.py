@@ -52,7 +52,7 @@ class iHealthAdapter(object):
 	def sendDataQueue(self,data):
 		r=requests.put("http://"+self.ip_others["queue_server"][0]+":"+self.ip_others["queue_server"][1],json.dumps(data))
 		
-
+	'''OBTAINING DATA FROM BOTH REAL AND EMULATED SENSORS'''
 	def getDataFromCloud(self, pressure_id,heart_id,glucose_id):
 		timestamp=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 		data={

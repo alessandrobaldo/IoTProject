@@ -236,7 +236,7 @@ class botTriage(object):
 			self.bot.sendMessage(chat_id, 'Age:')
 		elif self.flagAge == True and self.flagExit == False:
 			self.age = msg['text']
-			if age.isnumeric():
+			if self.age.isnumeric():
 				self.flagAge = False
 				self.flagGender = True
 				self.bot.sendMessage(chat_id, 'Gender (M, F, O):')
@@ -244,7 +244,7 @@ class botTriage(object):
 				self.bot.sendMessage(chat_id, 'Error! Enter a valide age, it must be a number.')
 		elif self.flagGender == True and self.flagExit == False:
 			self.gender = msg['text']
-			if gender!=M and gender!=F and gender!=O:
+			if self.gender!='M' and self.gender!='F' and self.gender!='O':
 				self.bot.sendMessage(chat_id, 'Error! Enter a valide gender, it could be M(male), F(female) or O(other).')
 			
 			else:
@@ -253,7 +253,7 @@ class botTriage(object):
 				self.bot.sendMessage(chat_id, 'Weight (kg):')
 		elif self.flagWeight == True and self.flagExit == False:
 			self.weight = msg['text']
-			if weight.isnumeric():
+			if self.weight.isnumeric():
 				self.flagWeight = False
 				self.flagHeight = True
 				self.bot.sendMessage(chat_id, 'Height (cm):')
@@ -261,7 +261,7 @@ class botTriage(object):
 				self.bot.sendMessage(chat_id, 'Error! Enter a valide weight(kg), it must be a number.')
 		elif self.flagHeight == True and self.flagExit == False:
 			self.height = msg['text']
-			if height.isnumeric():
+			if self.height.isnumeric():
 				self.flagHeight = False
 				self.flagCod = True
 				self.bot.sendMessage(chat_id, 'Code (2,3,4, or 5):')
@@ -269,7 +269,7 @@ class botTriage(object):
 				self.bot.sendMessage(chat_id, 'Error! Enter a valide height(cm), it must be a number.')
 		elif self.flagCod == True and self.flagExit == False:
 			self.code = msg['text']
-			if code!=2 and code!=3 and code!=4 and code!=5:
+			if int(self.code)!=2 and int(self.code)!=3 and int(self.code)!=4 and int(self.code)!=5:
 				self.bot.sendMessage(chat_id, 'Error! Enter a valide code, it could be 2,3,4 or 5.')
 			else:
 				self.flagCod = False
@@ -336,6 +336,8 @@ class botTriage(object):
 					"heart":self.he
 				}
 				res=requests.put(self.catalog, json.dumps(self.sens))
+				newSensors=res.json()
+				self.available_sensors=newSensors
 				self.flagSh = False
 				self.js = {
 					'id_patient':0,
@@ -361,6 +363,7 @@ class botTriage(object):
 		else:
 			# sending a message with buttons
 			self.bot.sendMessage(chat_id, 'Choose an option:', reply_markup = self.keyboard)
+			
 	def isReadyToSend(self):
 		return self.readyToSend
 		
