@@ -31,14 +31,12 @@ class QueueProcessingRESTMQTT(object):
 		
 		attributes=q.getInfoDb()["data_sensors"]
 
-		return_res={"return":"failed"}
 		for i in range(len(keys)):
 			if(keys[i]!=attributes[i]):
 				return json.dumps(return_res)
 		print(json_body)
 		q.sendDataDatabase("sensors",json_body)
-		return_res["return"]="done"
-		return json.dumps(return_res)
+		
 
 	'''REGISTRY CATALOG REQUESTS INFORMATION'''
 	def POST(*uri,**params):
@@ -63,7 +61,7 @@ class QueueProcessingRESTMQTT(object):
 		self._paho_mqtt.on_message = self.myOnMessageReceived
 		#when you connect don't do the thing coded in the library, but my method of connection
 		self.topic=q.getTopicPublisher()
-		self.broker="127.0.0.1"
+		self.broker="iot.eclipse.org"
 		self.subscribed=False
 
 	def start(self):

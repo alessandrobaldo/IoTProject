@@ -10,7 +10,7 @@ t=TelegramHospitalChannel()
 class ChannelRESTMQTT(object):
 	def __init__(self, clientID):
 		self.clientID = clientID
-		self.broker="127.0.0.1"
+		self.broker="iot.eclipse.org"
 
 		self._paho_mqtt = PahoMQTT.Client(clientID, False)
 		self._paho_mqtt.on_connect = self.myOnConnect

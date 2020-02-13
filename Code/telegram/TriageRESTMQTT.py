@@ -13,7 +13,7 @@ class TriageRESTMQTT(object):
     def __init__(self, clientID):
         self.clientID = clientID
         self.topic = t.getTopicPublisher()
-        self.broker = "127.0.0.1"
+        self.broker = "iot.eclipse.org"
         self.status=''
 
         self._paho_mqtt = PahoMQTT.Client(clientID, False)
@@ -45,7 +45,7 @@ class TriageRESTMQTT(object):
         self.subscribed=False
 
     def myOnConnect (self, paho_mqtt, userdata, flags, rc):
-        print ("Connected to %s with result code: %d" % (self.messageBroker, rc))
+        print ("Connected to %s with result code: %d" % (self.broker, rc))
 
     '''DATA RECEIVED BY STATISTIC'''
     def myOnMessageReceived (self, paho_mqtt , userdata, msg):
