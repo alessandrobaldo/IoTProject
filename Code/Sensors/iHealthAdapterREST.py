@@ -15,14 +15,24 @@ class iHealthAdapterREST(object):
 		
 		if(len(uri)!=0):
 			try:
-				pressure_id=uri[0]
-				heart_id=uri[1]
-				glucose_id=uri[2]
+				print(uri)
+				pressure_id=uri[1]
+				heart_id=uri[2]
+				glucose_id=uri[3]
+				print(pressure_id)
+				print(heart_id)
+				print(glucose_id)
 
-				data=json.loads(i.getDataFromCloud(pressure_id,heart_id,glucose_id))
-				return json.dumps(data)
 			except:
+				print("WEEEE")
 				raise cherrypy.HTTPError(400,"Invalid parameters")
+
+			data=json.loads(i.getDataFromCloud(pressure_id,heart_id,glucose_id))
+			print(data)
+			return json.dumps(data)
+		else:
+			raise cherrypy.HTTPError(400,"Invalid parameters")
+
 
 	def PUT(*uri,**params):
 		pass
@@ -39,7 +49,6 @@ class iHealthAdapterREST(object):
 		keys=list(json_body.keys())
 
 		i.setData(json_body)
-		print(json_body)
 		return json.dumps(i.getData())
 
 	def DELETE(*uri,**params):

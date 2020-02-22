@@ -246,12 +246,12 @@ class RegistryCatalog(object):
 
 	def onlineServers(self):
 		query="SELECT server,ip,port FROM mappings"
-		print("Looking for servers online")
 		try:
 			self.cursor.execute(query)
 			result=self.cursor.fetchall()
 			for row in result:
 				key=row[0]
+
 				try:
 					if key=="queue_server":
 						mqtt_topics=self.readTopics(key)
@@ -276,8 +276,8 @@ class RegistryCatalog(object):
 						data=json.dumps(json.loads(ips))
 
 					elif key=="telegram_hospital":
-						ips=self.readMappings(key)
 						mqtt_topics=self.readTopics(key)
+						ips=self.readMappings(key)
 						return_list=[json.loads(mqtt_topics),json.loads(ips)]
 						data=json.dumps(return_list)
 
@@ -290,11 +290,12 @@ class RegistryCatalog(object):
 
 					elif key=="time_shift":
 						ips=self.readMappings(key)
-						data=json.dumps(json.loads(ips))
+						data=ips
 
 					'''ASKING DATA TO THE SERVERS'''
 					r=requests.post("http://"+row[1]+":"+row[2],data)
 					json_body=r.json()
+					
 					
 					for key in json_body.keys():
 						if key=="queue_server":
@@ -336,20 +337,18 @@ class RegistryCatalog(object):
 
 	def updateSensors(self,sensors):
 		query="UPDATE sensors SET available=0 WHERE type=%s AND id=%s"
-		print(sensors)
 		self.cursor.execute(query,('pressure',sensors["pressure"]))
 		self.cursor.execute(query,('glucose',sensors["glucose"]))
 		self.cursor.execute(query,('heart',sensors["heart"]))
 
-		r=print(json.loads(self.readAvailableSensors()))
+		print(json.loads(self.readAvailableSensors()))
 
-	def releaseSensors(self,sensors):
+	def releaseSensors(self,pressure_id,heart_id,glucose_id):
 		query="UPDATE sensors SET available=1 WHERE type=%s AND id=%s"
-		print(sensors)
-		self.cursor.execute(query,('pressure',sensors["pressure"]))
-		self.cursor.execute(query,('glucose',sensors["glucose"]))
-		self.cursor.execute(query,('heart',sensors["heart"]))
+		self.cursor.execute(query,('pressure',pressure_id))
+		self.cursor.execute(query,('glucose',glucose_id))
+		self.cursor.execute(query,('heart',heart_id))
 
-		r=print(json.loads(self.readAvailableSensors()))
+		print(json.loads(self.readAvailableSensors()))
 		
 		

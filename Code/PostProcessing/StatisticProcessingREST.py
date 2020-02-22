@@ -28,7 +28,6 @@ class StatisticProcessingRESTMQTT(object):
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
 		
 		s.setData(json_body)
-		print(json_body)
 		return json.dumps(s.getData())
 
 	def DELETE(*uri,**params):
@@ -40,7 +39,7 @@ class StatisticProcessingRESTMQTT(object):
 		self._paho_mqtt.on_connect = self.myOnConnect
 		#when you connect don't do the thing coded in the library, but my method of connection
 		self.topic=s.getTopicPublisher()
-		self.broker="iot.eclipse.org"
+		self.broker="192.168.1.103"
 
 	def start(self):
 		self._paho_mqtt.connect(self.broker, 1883)

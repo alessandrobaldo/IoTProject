@@ -36,34 +36,32 @@ class TimeShift(object):
 	def getData(self):
 		return self.my_data
 
-	def setData(sef,data):
+	def setData(self,data):
 		self.ip_others=data
-		print(json.dumps(self.ip_others,indent=4))
 
 
 	def configure(self):
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))
 		self.ip_others=self.result.json()
-		print(json.dumps(self.ip_others,indent=4))
 
 	def sendAlert(self):
 
 		for key in self.scheduling.keys():
 			if(key=="2"):
 				for elem in self.scheduling[key]:
-					if(time.time()-elem["last_measurement"]>=60):
+					if((datetime.datetime.now()-datetime.datetime.strptime(elem["last_measurement"],'%Y-%m-%d %H:%M:%S')).total_seconds()>=60):
 						r=requests.get("http://"+self.ip_others["queue_server"][0]+":"+self.ip_others["queue_server"][1]+"/retrieve?pressure_id="+elem["pressure_id"]+"&heart_id="+elem["heart_id"]+"&glucose_id="+elem["glucose_id"])
 			elif(key=="3"):
 				for elem in self.scheduling[key]:
-					if(time.time()-elem["last_measurement"]>=240):
+					if((datetime.datetime.now()-datetime.datetime.strptime(elem["last_measurement"],'%Y-%m-%d %H:%M:%S')).total_seconds()>=240):
 						r=requests.get("http://"+self.ip_others["queue_server"][0]+":"+self.ip_others["queue_server"][1]+"/retrieve?pressure_id="+elem["pressure_id"]+"&heart_id="+elem["heart_id"]+"&glucose_id="+elem["glucose_id"])
 			elif(key=="4"):
 				for elem in self.scheduling[key]:
-					if(time.time()-elem["last_measurement"]>=480):
+					if((datetime.datetime.now()-datetime.datetime.strptime(elem["last_measurement"],'%Y-%m-%d %H:%M:%S')).total_seconds()>=480):
 						r=requests.get("http://"+self.ip_others["queue_server"][0]+":"+self.ip_others["queue_server"][1]+"/retrieve?pressure_id="+elem["pressure_id"]+"&heart_id="+elem["heart_id"]+"&glucose_id="+elem["glucose_id"])
 			elif(key=="5"):
 				for elem in self.scheduling[key]:
-					if(time.time()-elem["last_measurement"]>=960):
+					if((datetime.datetime.now()-datetime.datetime.strptime(elem["last_measurement"],'%Y-%m-%d %H:%M:%S')).total_seconds()>=960):
 						r=requests.get("http://"+self.ip_others["queue_server"][0]+":"+self.ip_others["queue_server"][1]+"/retrieve?pressure_id="+elem["pressure_id"]+"&heart_id="+elem["heart_id"]+"&glucose_id="+elem["glucose_id"])
 
 	
@@ -73,7 +71,13 @@ class TimeShift(object):
 		"pressure_id":data["pressure_id"],
 		"heart_id":data["heart_id"],
 		"glucose_id":data["glucose_id"],
-		"last_time":data["time_stamp"]
+		"last_measurement":data["time_stamp"]
 		}
 
 		self.scheduling[data["code"]].append(obj)
+
+	def removeFromScheduling(self,code,pressure_id,heart_id,glucose_id):
+		for i in range(len(self.scheduling[str(code)])):
+			if(self.scheduling[str(code)][i]["pressure_id"]==pressure_id and self.scheduling[str(code)][i]["heart_id"]==heart_id and self.scheduling[str(code)][i]["glucose_id"]==glucose_id):
+				del self.scheduling[str(code)][i]
+

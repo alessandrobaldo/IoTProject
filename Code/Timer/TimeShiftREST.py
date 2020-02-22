@@ -21,10 +21,12 @@ class TimeShiftREST(object):
 		except:
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
 		
+		print(json_body)
 		t.addToScheduling(json.dumps(json_body))
+		print("INSERTED")
 
 	'''DATA REQUESTED BY CATALOG'''
-	
+
 	def POST(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
@@ -32,15 +34,23 @@ class TimeShiftREST(object):
 
 		except:
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
-		parameter=list(json_body.values())
-		keys=list(json_body.keys())
-
+		
 		t.setData(json_body)
-		print(json_body)
 		return json.dumps(t.getData())
 		
 	def DELETE(*uri,**params):
-		pass
+		if(len(uri)!=0):
+			try:
+				code=uri[1]
+				pressure_id=uri[2]
+				heart_id=uri[3]
+				glucose_id=uri[4]
+			except:
+				raise cherrypy.HTTPError(400,"Invalid parameters passed")
+		else:
+			raise cherrypy.HTTPError(400,"Invalid parameters passed")
+
+		t.removeFromScheduling(code,pressure_id,heart_id,glucose_id)
 		
 
 if __name__=='__main__':

@@ -38,12 +38,10 @@ class iHealthAdapter(object):
 
 	def setData(self,data):
 		self.ip_others=data
-		print(json.dumps(self.ip_others,indent=4))
 
 	def configure(self):
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))
 		self.ip_others=self.result.json()
-		print(json.dumps(self.ip_others,indent=4))
 
 
 	def getIps(self):
@@ -52,18 +50,29 @@ class iHealthAdapter(object):
 	def sendDataQueue(self,data):
 		r=requests.put("http://"+self.ip_others["queue_server"][0]+":"+self.ip_others["queue_server"][1],json.dumps(data))
 		
-	'''OBTAINING DATA FROM BOTH REAL AND EMULATED SENSORS'''
 	def getDataFromCloud(self, pressure_id,heart_id,glucose_id):
-		timestamp=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+		now=datetime.datetime.now()
+		timestamp=now.strftime('%Y-%m-%d %H:%M:%S')#,time.localtime(time.time()))
+		
 		data={
-		"pressure_id":pressure_id,
-		"heart_id":heart_id,
-		"glucose_id":glucose_id,
-		"pressure_min":json.loads(self.emulated_pressure.getMeasurement())["min"],
-		"pressure_max":json.loads(self.emulated_pressure.getMeasurement())["max"],
-		"rate":json.loads(self.emulated_heart.getMeasurement())["rate"],
-		"glucose":json.loads(self.emulated_glucose.getMeasurement())["glucose"],
-		"time_stamp":timestamp
+			"pressure_id":pressure_id,
+			"heart_id":heart_id,
+			"glucose_id":glucose_id,
+			"pressure_min":json.loads(self.emulated_pressure.getMeasurement())["min"],
+			"pressure_max":json.loads(self.emulated_pressure.getMeasurement())["max"],
+			"rate":json.loads(self.emulated_heart.getMeasurement())["rate"],
+			"glucose":json.loads(self.emulated_glucose.getMeasurement())["glucose"],
+			"time_stamp":timestamp
 		}
-		return json.dumps(data)
+		'''
+		data["pressure_id"]=pressure_id
+		data["heart_id"]=heart_id
+		data["glucose_id"]=glucose_id
+		data["pressure_min"]=json.loads(self.emulated_pressure.getMeasurement())["min"]
+		data["pressure_max"]=json.loads(self.emulated_pressure.getMeasurement())["max"]
+		data["rate"]=json.loads(self.emulated_heart.getMeasurement())["rate"]
+		data["glucose"]=json.loads(self.emulated_glucose.getMeasurement())["glucose"]
+		data["time_stamp"]=timestamp
+		'''
 		#retrieving data from cloud + glucose
+		return json.dumps(data)

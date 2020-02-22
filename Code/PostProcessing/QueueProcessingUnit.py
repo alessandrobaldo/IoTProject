@@ -40,11 +40,6 @@ class QueueProcessingUnit(object):
 		self.thresh=data[2]
 		self.tables=data[3]
 
-		print(json.dumps(self.mqtt,indent=4))
-		print(json.dumps(self.ip_others,indent=4))
-		print(json.dumps(self.thresh,indent=4))		
-		print(json.dumps(self.tables,indent=4))
-
 
 	def configure(self):
 		
@@ -55,19 +50,15 @@ class QueueProcessingUnit(object):
 		self.thresh=self.result.json()[2]
 		self.tables=self.result.json()[3]
 
-		print(json.dumps(self.mqtt,indent=4))
-		print(json.dumps(self.ip_others,indent=4))
-		print(json.dumps(self.thresh,indent=4))		
-		print(json.dumps(self.tables,indent=4))
 
 	def getQueue(self):
 		return self.queue
 	
 	def processData(self):
+		print(self.queue)
 		'''ASKING THE DB SERVER DATA OF CURRENT PATIENTS'''
 		self.r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/process")
 		dataToProcess=self.r.json()
-
 
 		position={}
 		history_positions={}
@@ -75,13 +66,13 @@ class QueueProcessingUnit(object):
 		for key in dataToProcess.keys():
 			position[key]=i
 			history_positions[key]=[]
-			history_positions[key][0]=i
+			history_positions[key].append(i)
 			i+=1
 		
 		for i in range(len(dataToProcess.keys())-1):
 			for j in range(i+1,len(dataToProcess.keys())):
-				key1=dataToProcess.keys()[i]
-				key2=dataToProcess.keys()[j]
+				key1=list(dataToProcess.keys())[i]
+				key2=list(dataToProcess.keys())[j]
 
 				flag1=0
 				flag2=0
@@ -151,16 +142,16 @@ class QueueProcessingUnit(object):
 		flag=0
 		if(age<=25):
 			#min pressure
-			minMinPres=thresh["UNDER25"][0]
-			maxMinPres=thresh["UNDER25"][1]
+			minMinPres=self.thresh["UNDER25"][0]
+			maxMinPres=self.thresh["UNDER25"][1]
 
 			#max pressure
-			minMaxPres=thresh["UNDER25"][4]
-			maxMaxPres=thresh["UNDER25"][5]
+			minMaxPres=self.thresh["UNDER25"][4]
+			maxMaxPres=self.thresh["UNDER25"][5]
 
 			#gluc
-			minGluc=thresh["UNDER25"][6]
-			maxGluc=thresh["UNDER25"][7]
+			minGluc=self.thresh["UNDER25"][6]
+			maxGluc=self.thresh["UNDER25"][7]
 
 			#rate
 			maxRate=208-0.7*int(age)
@@ -168,44 +159,44 @@ class QueueProcessingUnit(object):
 			if(minPres<minMinPres or minPres>maxMinPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_min"])-int(minPres))>0.6(maxMinPres-minMinPres)):
+					if(abs(int(self.queue[key]["pressure_min"])-int(minPres))>0.6*(maxMinPres-minMinPres)):
 						flag+=1
 
 
 			if(maxPres<minMaxPres or maxPres>maxMaxPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_max"])-int(maxPres))>0.6(maxMaxPres-minMaxPres)):
+					if(abs(int(self.queue[key]["pressure_max"])-int(maxPres))>0.6*(maxMaxPres-minMaxPres)):
 						flag+=1
 
 
 			if(glucose<minGluc or glucose>maxGluc):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["glucose"])-int(glucose))>0.6(maxGluc-minGluc)):
+					if(abs(int(self.queue[key]["glucose"])-int(glucose))>0.6*(maxGluc-minGluc)):
 						flag+=1
 
 
 			if(rate>maxRate):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["rate"])-int(rate))>0.25(maxRate)):
+					if(abs(int(self.queue[key]["rate"])-int(rate))>0.25*(maxRate)):
 						flag+=1
 
 
 
 		elif(age>25 and age<=45):
 			#min pressure
-			minMinPres=thresh["UNDER45"][0]
-			maxMinPres=thresh["UNDER45"][1]
+			minMinPres=self.thresh["UNDER45"][0]
+			maxMinPres=self.thresh["UNDER45"][1]
 
 			#max pressure
-			minMaxPres=thresh["UNDER45"][4]
-			maxMaxPres=thresh["UNDER45"][5]
+			minMaxPres=self.thresh["UNDER45"][4]
+			maxMaxPres=self.thresh["UNDER45"][5]
 
 			#gluc
-			minGluc=thresh["UNDER45"][6]
-			maxGluc=thresh["UNDER45"][7]
+			minGluc=self.thresh["UNDER45"][6]
+			maxGluc=self.thresh["UNDER45"][7]
 
 			#rate
 			maxRate=208-0.7*age
@@ -213,42 +204,42 @@ class QueueProcessingUnit(object):
 			if(minPres<minMinPres or minPres>maxMinPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_min"])-int(minPres))>0.6(maxMinPres-minMinPres)):
+					if(abs(int(self.queue[key]["pressure_min"])-int(minPres))>0.6*(maxMinPres-minMinPres)):
 						flag+=1
 
 
 			if(maxPres<minMaxPres or maxPres>maxMaxPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_max"])-int(maxPres))>0.6(maxMaxPres-minMaxPres)):
+					if(abs(int(self.queue[key]["pressure_max"])-int(maxPres))>0.6*(maxMaxPres-minMaxPres)):
 						flag+=1
 
 
 			if(glucose<minGluc or glucose>maxGluc):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["glucose"])-int(glucose))>0.6(maxGluc-minGluc)):
+					if(abs(int(self.queue[key]["glucose"])-int(glucose))>0.6*(maxGluc-minGluc)):
 						flag+=1
 
 
 			if(rate>maxRate):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["rate"])-int(rate))>0.25(maxRate)):
+					if(abs(int(self.queue[key]["rate"])-int(rate))>0.25*(maxRate)):
 						flag+=1
 
 		elif(age>45 and age<=55):
 			#min pressure
-			minMinPres=thresh["UNDER55"][0]
-			maxMinPres=thresh["UNDER55"][1]
+			minMinPres=self.thresh["UNDER55"][0]
+			maxMinPres=self.thresh["UNDER55"][1]
 
 			#max pressure
-			minMaxPres=thresh["UNDER55"][4]
-			maxMaxPres=thresh["UNDER55"][5]
+			minMaxPres=self.thresh["UNDER55"][4]
+			maxMaxPres=self.thresh["UNDER55"][5]
 
 			#gluc
-			minGluc=thresh["UNDER55"][6]
-			maxGluc=thresh["UNDER55"][7]
+			minGluc=self.thresh["UNDER55"][6]
+			maxGluc=self.thresh["UNDER55"][7]
 
 			#rate
 			maxRate=208-0.7*age
@@ -256,41 +247,41 @@ class QueueProcessingUnit(object):
 			if(minPres<minMinPres or minPres>maxMinPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_min"])-int(minPres))>0.6(maxMinPres-minMinPres)):
+					if(abs(int(self.queue[key]["pressure_min"])-int(minPres))>0.6*(maxMinPres-minMinPres)):
 						flag+=1
 
 
 			if(maxPres<minMaxPres or maxPres>maxMaxPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_max"])-int(maxPres))>0.6(maxMaxPres-minMaxPres)):
+					if(abs(int(self.queue[key]["pressure_max"])-int(maxPres))>0.6*(maxMaxPres-minMaxPres)):
 						flag+=1
 
 
 			if(glucose<minGluc or glucose>maxGluc):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["glucose"])-int(glucose))>0.6(maxGluc-minGluc)):
+					if(abs(int(self.queue[key]["glucose"])-int(glucose))>0.6*(maxGluc-minGluc)):
 						flag+=1
 
 
 			if(rate>maxRate):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["rate"])-int(rate))>0.25(maxRate)):
+					if(abs(int(self.queue[key]["rate"])-int(rate))>0.25*(maxRate)):
 						flag+=1
 		elif(age>55 and age<=65):
 			#min pressure
-			minMinPres=thresh["UNDER65"][0]
-			maxMinPres=thresh["UNDER65"][1]
+			minMinPres=self.thresh["UNDER65"][0]
+			maxMinPres=self.thresh["UNDER65"][1]
 
 			#max pressure
-			minMaxPres=thresh["UNDER65"][4]
-			maxMaxPres=thresh["UNDER65"][5]
+			minMaxPres=self.thresh["UNDER65"][4]
+			maxMaxPres=self.thresh["UNDER65"][5]
 
 			#gluc
-			minGluc=thresh["UNDER65"][6]
-			maxGluc=thresh["UNDER65"][7]
+			minGluc=self.thresh["UNDER65"][6]
+			maxGluc=self.thresh["UNDER65"][7]
 
 			#rate
 			maxRate=208-0.7*age
@@ -298,41 +289,41 @@ class QueueProcessingUnit(object):
 			if(minPres<minMinPres or minPres>maxMinPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_min"])-int(minPres))>0.6(maxMinPres-minMinPres)):
+					if(abs(int(self.queue[key]["pressure_min"])-int(minPres))>0.6*(maxMinPres-minMinPres)):
 						flag+=1
 
 
 			if(maxPres<minMaxPres or maxPres>maxMaxPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_max"])-int(maxPres))>0.6(maxMaxPres-minMaxPres)):
+					if(abs(int(self.queue[key]["pressure_max"])-int(maxPres))>0.6*(maxMaxPres-minMaxPres)):
 						flag+=1
 
 
 			if(glucose<minGluc or glucose>maxGluc):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["glucose"])-int(glucose))>0.6(maxGluc-minGluc)):
+					if(abs(int(self.queue[key]["glucose"])-int(glucose))>0.6*(maxGluc-minGluc)):
 						flag+=1
 
 
 			if(rate>maxRate):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["rate"])-int(rate))>0.25(maxRate)):
+					if(abs(int(self.queue[key]["rate"])-int(rate))>0.25*(maxRate)):
 						flag+=1
 		else:
 			#min pressure
-			minMinPres=thresh["OVER65"][0]
-			maxMinPres=thresh["OVER65"][1]
+			minMinPres=self.thresh["OVER65"][0]
+			maxMinPres=self.thresh["OVER65"][1]
 
 			#max pressure
-			minMaxPres=thresh["OVER65"][4]
-			maxMaxPres=thresh["OVER65"][5]
+			minMaxPres=self.thresh["OVER65"][4]
+			maxMaxPres=self.thresh["OVER65"][5]
 
 			#gluc
-			minGluc=thresh["OVER55"][6]
-			maxGluc=thresh["OVER65"][7]
+			minGluc=self.thresh["OVER55"][6]
+			maxGluc=self.thresh["OVER65"][7]
 
 			#rate
 			maxRate=208-0.7*age
@@ -340,46 +331,60 @@ class QueueProcessingUnit(object):
 			if(minPres<minMinPres or minPres>maxMinPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_min"])-int(minPres))>0.6(maxMinPres-minMinPres)):
+					if(abs(int(self.queue[key]["pressure_min"])-int(minPres))>0.6*(maxMinPres-minMinPres)):
 						flag+=1
 
 
 			if(maxPres<minMaxPres or maxPres>maxMaxPres):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["pressure_max"])-int(maxPres))>0.6(maxMaxPres-minMaxPres)):
+					if(abs(int(self.queue[key]["pressure_max"])-int(maxPres))>0.6*(maxMaxPres-minMaxPres)):
 						flag+=1
 
 
 			if(glucose<minGluc or glucose>maxGluc):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["glucose"])-int(glucose))>0.6(maxGluc-minGluc)):
+					if(abs(int(self.queue[key]["glucose"])-int(glucose))>0.6*(maxGluc-minGluc)):
 						flag+=1
 
 
 			if(rate>maxRate):
 				flag+=1
 				if key in self.queue.keys():
-					if(abs(int(queue[key]["rate"])-int(rate))>0.25(maxRate)):
+					if(abs(int(self.queue[key]["rate"])-int(rate))>0.25*(maxRate)):
 						flag+=1
 		return flag
 
 	def processPatient(self):
 		n=random.randint(1,4)
+		m=len(list(self.queue.keys()))
 
-		try:
-			for i in range(n):
-				patient={"key":queue.keys()[i]}
-				r=requests.delete("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1],json.dumps(patient))
+		if(m!=0):
+			try:
+				for i in range(min(n,m)):
+					patient={"key":list(self.queue.keys())[i]}
+					sensors={
+						"code":self.queue[patient["key"]]["code"],
+						"pressure_id":self.queue[patient["key"]]["pressure_id"],
+						"heart_id":self.queue[patient["key"]]["heart_id"],
+						"glucose_id":self.queue[patient["key"]]["glucose_id"],
+					}
 
-		except:
+					del self.queue[patient["key"]]
+					r=requests.delete("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/"+patient["key"])
+					r=requests.delete("http://"+self.ip_others["time_shift"][0]+":"+self.ip_others["time_shift"][1]+"/"+str(sensors["code"])+"/"+str(sensors["pressure_id"])+"/"+str(sensors["heart_id"])+"/"+str(sensors["glucose_id"]))
+					r=requests.delete(self.catalog+"/"+str(sensors["pressure_id"])+"/"+str(sensors["heart_id"])+"/"+str(sensors["glucose_id"]))
+
+			except:
+				print("Some error occurred")
+		else:
 			print("No patient to process")
 
 
 
 	def sendDataDatabase(self,command, data):
-		r=requests.put("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/"+command,json.dumps(data))
+		r=requests.put("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/"+command,data)
 
 	def askDataSensors(self,id1,id2,id3):
 		sensors={
@@ -391,6 +396,8 @@ class QueueProcessingUnit(object):
 		r=requests.get("http://"+self.ip_others["ihealth_adapter"][0]+":"+self.ip_others["ihealth_adapter"][1]+"/"+sensors["pressure"]+"/"+sensors["heart"]+"/"+sensors["glucose"])
 		self.sendDataDatabase("sensors",json.dumps(r.json()))
 
+	def sendDataTime(self,data):
+		r=requests.put("http://"+self.ip_others["time_shift"][0]+":"+self.ip_others["time_shift"][1],data)
 
 	def getCurrentPatient(self):
 		self.id_patient+=1

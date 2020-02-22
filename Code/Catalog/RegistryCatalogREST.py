@@ -79,6 +79,7 @@ class RegistryCatalogREST(object):
 				r.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
 				ips=r.readMappings(key)
 				mqtt_topics=r.readTopics(key)
+
 				return_list=[json.loads(mqtt_topics),json.loads(ips)]
 				return json.dumps(return_list)
 
@@ -106,17 +107,17 @@ class RegistryCatalogREST(object):
 
 	'''TELEGRAM SENSORS RELEASE'''
 	def DELETE(*uri,**params):
-		body=cherrypy.request.body.read()
-		try:
-			json_body=json.loads(body.decode('utf-8'))
+		if(len(uri)!=0):
+			try:
+				pressure_id=uri[1]
+				heart_id=uri[2]
+				glucose_id=uri[3]
+			except:
+				raise cherrypy.HTTPError(400,"Invalid parameters passed")
+		else:
+			raise cherrypy.HTTPError(400,"Invalid parameters passed")
 
-		except:
-			raise cherrypy.HTTPError(400,"ERROR body is empty")
-		
-		parameter=list(json_body.values())
-		keys=list(json_body.keys())
-
-		r.releaseSensors(json_body)
+		r.releaseSensors(pressure_id,heart_id,glucose_id)
 
 
 

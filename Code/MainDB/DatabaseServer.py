@@ -32,7 +32,7 @@ class DatabaseServer(object):
 		'''CREATION OF THE DATABASE'''
 		try:
 			self.conn=mysql.connector.connect(user='root',password='',host='127.0.0.1',database='PatientsData')
-			self.cursor=self.conn.cursor()
+			self.cursor=self.conn.cursor(buffered=True)
 			query="DROP TABLE IF EXISTS `data_sensors`;\
 					CREATE TABLE `data_sensors` (\
 					  `pressure_id` varchar(50) NOT NULL DEFAULT '',\
@@ -43,8 +43,9 @@ class DatabaseServer(object):
 					  `rate` int(11) DEFAULT NULL,\
 					  `glucose` int(11) DEFAULT NULL,\
 					  `time_stamp` timestamp NULL DEFAULT NULL\
-					) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
-					DROP TABLE IF EXISTS `info_patients`;\
+					) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+
+			query2="DROP TABLE IF EXISTS `info_patients`;\
 					CREATE TABLE `info_patients` (\
 					  `id_patient` varchar(50) NOT NULL DEFAULT,\
 					  `pressure_id` varchar(50) NOT NULL DEFAULT,\
@@ -61,6 +62,7 @@ class DatabaseServer(object):
 					  `time_stamp` timestamp NULL DEFAULT NULL\
 					) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
 			self.cursor.execute(query,multi=True)
+			self.cursor.execute(query2,multi=True)
 		except mysql.connector.Error as err:
 			if err.errno==errorcode.ER_ACCESS_DENIED_ERROR:
 				print("Something gone wrong with the credentials")
@@ -96,19 +98,17 @@ class DatabaseServer(object):
 
 	def setData(self,data):
 		self.ip_others=data
-		print(json.dumps(self.ip_others,indent=4))
 
 	def configure(self):
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))
 		self.ip_others=self.result.json()
-		print(json.dumps(self.ip_others,indent=4))
 
 	def getIps(self):
 		return self.ip_others
 
 	def insertDataSensors(self,data):
 		
-		add_sensors_data=("INSERT INTO data_sensors (pressure_id,heart_id,glucose_id,pressure_min,pressure_max,rate,glucose,time_stamp) VALUES (%s,%s,%s,%s,%s,%s,%s)")
+		add_sensors_data=("INSERT INTO data_sensors (pressure_id,heart_id,glucose_id,pressure_min,pressure_max,rate,glucose,time_stamp) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)")
 		data_patient=(data["pressure_id"],data["heart_id"],data["glucose_id"],data["pressure_min"],data["pressure_max"],data["rate"],data["glucose"],data["time_stamp"])
 		self.cursor.execute(add_sensors_data,data_patient)
 		self.conn.commit()
@@ -122,7 +122,7 @@ class DatabaseServer(object):
 		self.conn.commit()
 
 	def removePatient(self, key):
-		query="SELECT pressure_id,heart_id,glucose_id FROM info_patient WHERE id_patient=%(key)s"
+		query="SELECT pressure_id,heart_id,glucose_id FROM info_patients WHERE id_patient=%(key)s"
 		self.cursor.execute(query,{"key":key})
 		self.conn.commit()
 
@@ -131,39 +131,46 @@ class DatabaseServer(object):
 		sensors={}
 
 		for row in result:
-			sensors["pressure"]=row[0]
-			sensors["heart"]=row[1]
-			sensors["glucose"]=row[2]
-
-		r=requests.delete(self.catalog,json.dumps(sensors))
-
+			sensors["pressure_id"]=row[0]
+			sensors["heart_id"]=row[1]
+			sensors["glucose_id"]=row[2]
 
 
 		query="DELETE FROM info_patients WHERE id_patient=%(key)s"
 		self.cursor.execute(query,{"key":key})
 		self.conn.commit()
 
-		query="DELETE FROM data_sensors WHERE id_patient=%(key)s"
-		self.cursor.execute(query,{"key":key})
+		query="DELETE FROM data_sensors WHERE pressure_id=%s AND heart_id=%s AND glucose_id=%s"
+		self.cursor.execute(query,(sensors["pressure_id"],sensors["heart_id"],sensors["glucose_id"]))
 		self.conn.commit()
 
+	
 	'''DATA QUEUE PROCESSING'''
 
 	def readDataQueue(self):
-		query="SELECT i.id_patient, d.pressure_min, d.pressure_max, d.rate, d.glucose, i.code, i.age, i.time_stamp FROM data_sensors d, info_patients i WHERE d.pressure_id=i.pressure_id AND d.heart_id=i.heart_id AND d.glucose_id=i.glucose_id ORDER BY i.code ASC"
+		query="SELECT i.id_patient, d.pressure_min, d.pressure_max, d.rate, d.glucose, i.code, i.age, i.time_stamp, i.name, i.surname, i.gender, d.pressure_id,d.heart_id,d.glucose_id FROM data_sensors d, info_patients i WHERE d.pressure_id=i.pressure_id AND d.heart_id=i.heart_id AND d.glucose_id=i.glucose_id ORDER BY i.code ASC"
 		self.cursor.execute(query)
 		result=self.cursor.fetchall()
 
 		queue={}
 		for row in result:
-			queue[row[0]]["pressure_min"]=row[1]
-			queue[row[0]]["pressure_max"]=row[2]
-			queue[row[0]]["rate"]=row[3]
-			queue[row[0]]["glucose"]=row[4]
-			queue[row[0]]["code"]=row[5]
-			queue[row[0]]["age"]=row[6]
-			queue[row[0]]["time_stamp"]=row[7]
-
+				queue[row[0]]={
+					"pressure_min":row[1],
+					"pressure_max":row[2],
+					"rate":row[3],
+					"glucose":row[4],
+					"code":row[5],
+					"age":row[6],
+					"time_stamp":str(row[7]),
+					"name":row[8],
+					"surname":row[9],
+					"gender":row[10],
+					"pressure_id":row[11],
+					"heart_id":row[12],
+					"glucose_id":row[13]
+				}
+			
+		
 		return json.dumps(queue)
 
 	'''DATA STATISTIC PROCESSING'''

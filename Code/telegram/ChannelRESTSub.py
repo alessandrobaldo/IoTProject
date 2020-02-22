@@ -8,9 +8,11 @@ from TelegramHospitalChannel import TelegramHospitalChannel
 t=TelegramHospitalChannel()
 
 class ChannelRESTMQTT(object):
+	exposed=True
+
 	def __init__(self, clientID):
 		self.clientID = clientID
-		self.broker="iot.eclipse.org"
+		self.broker="192.168.1.103"
 
 		self._paho_mqtt = PahoMQTT.Client(clientID, False)
 		self._paho_mqtt.on_connect = self.myOnConnect
@@ -31,8 +33,16 @@ class ChannelRESTMQTT(object):
 
 	'''RECEIVING MESSAGE TO PUBLISH IN THE CHANNEL'''
 	def myOnMessageReceived (self, paho_mqtt , userdata, msg):
+		t.send_message("NEW QUEUE")
 		message=json.loads(msg.payload)
-		t.send_message(message)
+		sending=""
+		for key in list(message.keys()):
+			sending+="\n**ID:"+str(key)+"**\nName:"+message[key]["name"]+"\nSurname:"+message[key]["surname"]+"\nGender:"+message[key]["gender"]+"\nAge:"+str(message[key]["age"])
+			sending+="\nCode:"+str(message[key]["code"])+"\nArrival Time:"+str(message[key]["time_stamp"])
+			sending+="\nVital Parameters:\nPressure:"+str(message[key]["pressure_max"])+"-"+str(message[key]["pressure_min"])
+			sending+="\nHeart Rate:"+str(message[key]["rate"])+"\nGlucose:"+str(message[key]["glucose"])
+		
+		t.send_message(sending)
 
 	def mySubscribe(self):
 		if(self.subscribed==False):
@@ -54,17 +64,15 @@ class ChannelRESTMQTT(object):
 	def PUT(*uri,**params):
 		pass
 
-	'''DATA REQUESTED BY CATALOG'''
+#DATA REQUESTED BY CATALOG
 	def POST(*uri,**params):
 		body=cherrypy.request.body.read()
 		try:
 			json_body=json.loads(body.decode('utf-8'))
-
 		except:
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
-		
+
 		t.setData(json_body)
-		print(json_body)
 		return json.dumps(t.getData())
 
 	def DELETE(*uri,**params):
@@ -79,9 +87,9 @@ if __name__ == "__main__":
 	cherrypy.engine.start()
 
 	server.start()
-	server.mySubscribe()
 	t.configure()
-	while True and t.getFlag()==False:
+	while True:
+		server.mySubscribe()
 		time.sleep(10)
 
 	server.myUnsubscribe()

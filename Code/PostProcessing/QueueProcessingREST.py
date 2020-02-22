@@ -13,7 +13,8 @@ class QueueProcessingRESTMQTT(object):
 	
 	'''TIME SHIFT REQUEST DATA'''
 	def GET(*uri,**params):
-		if(uri[0]=="retrieve"):
+		print(uri)
+		if(uri[1]=="retrieve"):
 			q.askDataSensors(params["pressure_id"],params["heart_id"],params["glucose_id"])
 
 	'''iHEALTH ADAPTER PUTTING DATA INTO DB'''
@@ -46,9 +47,8 @@ class QueueProcessingRESTMQTT(object):
 
 		except:
 			raise cherrypy.HTTPError(400,"ERROR body is empty")
-		
+
 		q.setData(json_body)
-		print(json_body)
 		return json.dumps(q.getData())
 
 	def DELETE(*uri,**params):
@@ -61,7 +61,7 @@ class QueueProcessingRESTMQTT(object):
 		self._paho_mqtt.on_message = self.myOnMessageReceived
 		#when you connect don't do the thing coded in the library, but my method of connection
 		self.topic=q.getTopicPublisher()
-		self.broker="iot.eclipse.org"
+		self.broker="192.168.1.103"
 		self.subscribed=False
 
 	def start(self):
@@ -78,6 +78,7 @@ class QueueProcessingRESTMQTT(object):
 	'''PUBLISHING ON TELEGRAM CHANNEL'''
 	def myPublish(self,message):
 		self._paho_mqtt.publish(self.topic, json.dumps(message))
+		print("AAAAA")
 		
 
 	def mySubscribe(self):
@@ -99,7 +100,6 @@ class QueueProcessingRESTMQTT(object):
 			'''RECEIVING DATA FROM TELEGRAM ABOUT A NEW PATIENT'''
 			
 			message=json.loads(msg.payload)
-			print(message)
 			message["id_patient"]=q.getCurrentPatient()
 
 			id1=message["pressure_id"]
@@ -115,10 +115,11 @@ class QueueProcessingRESTMQTT(object):
 			"time_stamp":time_stamp
 			}
 			q.askDataSensors(id1,id2,id3)
-			q.sendDataDatabase("patients",message)
+			q.sendDataDatabase("patients",json.dumps(message))
 
 			'''NOTIFYING TIME SHIFT OF THE ARRIVAL OF A NEW PATIENT'''
-			r=requests.put("http://"+self.ip_others["time_shift"][0]+":"+self.ip_others["time_shift"][1],json.dumps(data))
+			q.sendDataTime(json.dumps(data))
+
 			
 if __name__=='__main__':
 	conf = { '/': { 'request.dispatch': cherrypy.dispatch.MethodDispatcher(), 'tools.sessions.on': True } }
