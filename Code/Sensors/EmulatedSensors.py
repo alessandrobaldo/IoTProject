@@ -17,9 +17,10 @@ class PressureSensor(object):
 		pass
 
 	def getMeasurement(self):
+		minim=random.randint(50,128)
 		pressure={
-		"min":random.randint(50,128),
-		"max":random.randint(70,170)
+		"min":minim,
+		"max":random.randint(minim,170)
 		}
 
 		return json.dumps(pressure)
