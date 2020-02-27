@@ -51,6 +51,7 @@ class TriageRESTMQTT(object):
 	'''DATA RECEIVED BY STATISTIC'''
 	def myOnMessageReceived (self, paho_mqtt , userdata, msg):
 		message=json.loads(msg.payload)
+		t.send_message(msg.payload)
 		#PUBLISH ON THE BOT CHAT
 		
 	'''PUBLISHING DATA TO QUEUE ABOUT NEW PATIENT'''

@@ -15,7 +15,7 @@ class DatabaseServerREST(object):
 		if(uri[1]=="process"):
 			return d.readDataQueue()
 		elif(uri[1]=="statistics"):
-			return d.readStatistics()
+			return d.readStatistics(uri[2])
 
 	'''Receiving data from QueueProcessing to insert them'''
 

@@ -252,6 +252,9 @@ class botTriage(object):
 			self.flagName = True
 			self.bot.sendMessage(chat_id, 'Name:')
 
+	def send_message(self, message):
+		self.bot.sendMessage(chat_id, message)
+
 	def getIps(self):
 		return self.ip_others
 

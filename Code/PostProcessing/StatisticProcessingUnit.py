@@ -22,6 +22,7 @@ class StatisticProcessingUnit(object):
 		}
 		}'''
 		self.statistics={}
+		self.last_call=0
 		self.recall=0
 
 		self.my_data=json.loads(open("statisticData.json").read())
@@ -49,12 +50,15 @@ class StatisticProcessingUnit(object):
 	
 	'''PROCESSING STATISTICS READ FROM DB'''
 	def processData(self, data):
-		r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/statistics")
+		self.last_call=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+		r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/statistics/"+self.last_call)
 		self.dataToProcess=r.json()
 		print(self.dataToProcess)
 		if not self.statistics:
 			self.statistics=self.dataToProcess
 			self.recall+=1
+		elif not self.dataToProcess:
+			print("Statistic didn't change from the previous ones")
 		else:
 			self.statistics["age"]["under25"]=self.statistics["age"]["under25"]*self.recall/(self.recall+1)+self.dataToProcess["age"]["under25"]/(self.recall+1)
 			self.statistics["age"]["under45"]=self.statistics["age"]["under45"]*self.recall/(self.recall+1)+self.dataToProcess["age"]["under45"]/(self.recall+1)
