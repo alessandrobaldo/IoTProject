@@ -176,72 +176,74 @@ class DatabaseServer(object):
 	'''DATA STATISTIC PROCESSING'''
 
 	def readStatistics(self,time_stamp):
-
+		print("WA")
+		print(time_stamp)
 		statistics={}
-		queryage1="SELECT DISTINCT COUNT(*) as under25 FROM info_patients WHERE age<=25 AND time_stamp>=%s GROUP BY age"
-		queryage2="SELECT DISTINCT COUNT(*) as under45 FROM info_patients WHERE age<=45 AND age>25 AND time_stamp>=%s GROUP BY age"
-		queryage3="SELECT DISTINCT COUNT(*) as under55 FROM info_patients WHERE age<=55 and age>45 AND time_stamp>=%s GROUP BY age"
-		queryage4="SELECT DISTINCT COUNT(*) as under65 FROM info_patients WHERE age<=65 and age>55 AND time_stamp>=%s GROUP BY age"
-		queryage5="SELECT DISTINCT COUNT(*) as over65 FROM info_patients WHERE age>65 AND time_stamp>=%s GROUP BY age"
-		query2="SELECT DISTINCT unit, COUNT(*) as diff_units FROM info_patients WHERE time_stamp>=%s GROUP BY unit"
-		query3="SELECT DISTINCT gender, COUNT(*) as diff_genders FROM info_patients WHERE time_stamp>=%s GROUP BY gender"
-		query4="SELECT DISTINCT code, COUNT(*) as diff_codes FROM info_patients WHERE time_stamp>=%s GROUP BY code"
-		query5="SELECT COUNT(*) as obesity FROM info_patients WHERE CAST(weight as INT)/(CAST(height as INT)*CAST(height as INT)*0.0001)>30 AND time_stamp>=%s"
+		queryage1="SELECT DISTINCT COUNT(*) as under25 FROM info_patients WHERE age<=25 AND time_stamp>=%(key)s GROUP BY age"
+		queryage2="SELECT DISTINCT COUNT(*) as under45 FROM info_patients WHERE age<=45 AND age>25 AND time_stamp>=%(key)s GROUP BY age"
+		queryage3="SELECT DISTINCT COUNT(*) as under55 FROM info_patients WHERE age<=55 and age>45 AND time_stamp>=%(key)s GROUP BY age"
+		queryage4="SELECT DISTINCT COUNT(*) as under65 FROM info_patients WHERE age<=65 and age>55 AND time_stamp>=%(key)s GROUP BY age"
+		queryage5="SELECT DISTINCT COUNT(*) as over65 FROM info_patients WHERE age>65 AND time_stamp>=%(key)s GROUP BY age"
+		query2="SELECT DISTINCT unit, COUNT(*) as diff_units FROM info_patients WHERE time_stamp>=%(key)s GROUP BY unit"
+		query3="SELECT DISTINCT gender, COUNT(*) as diff_genders FROM info_patients WHERE time_stamp>=%(key)s GROUP BY gender"
+		query4="SELECT DISTINCT code, COUNT(*) as diff_codes FROM info_patients WHERE time_stamp>=%(key)s GROUP BY code"
+		query5="SELECT COUNT(*) as obesity FROM info_patients WHERE CAST(weight as INT)/(CAST(height as INT)*CAST(height as INT)*0.0001)>30 AND time_stamp>=%(key)s"
 
-		self.cursor.execute(queryage1,(time_stamp))
+		self.cursor.execute(queryage1,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["age"]["under25"]=row[0]
 
-		self.cursor.execute(queryage2,(time_stamp))
+		self.cursor.execute(queryage2,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["age"]["under45"]=row[0]
 
-		self.cursor.execute(queryage3,(time_stamp))
+		self.cursor.execute(queryage3,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["age"]["under55"]=row[0]
 
-		self.cursor.execute(queryage4,(time_stamp))
+		self.cursor.execute(queryage4,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["age"]["under65"]=row[0]
 
-		self.cursor.execute(queryage5,(time_stamp))
+		self.cursor.execute(queryage5,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["age"]["over65"]=row[0]
 
-		self.cursor.execute(query2,(time_stamp))
+		self.cursor.execute(query2,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["unit"][row[0]]=row[1]
 
-		self.cursor.execute(query3,(time_stamp))
+		self.cursor.execute(query3,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["gender"][row[0]]=row[1]
 
-		self.cursor.execute(query4,(time_stamp))
+		self.cursor.execute(query4,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["code"][row[0]]=row[1]
 
-		self.cursor.execute(query5,(time_stamp))
+		self.cursor.execute(query5,{"key":time_stamp})
 		result=self.cursor.fetchall()
 
 		for row in result:
 			statistics["obesity"]=row[0]
 
+		print(statistics)
 		return json.dumps(statistics)
 
 	def closeconn(self):

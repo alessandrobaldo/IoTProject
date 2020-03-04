@@ -49,7 +49,7 @@ class StatisticProcessingUnit(object):
 		self.ip_others=self.result.json()[1]
 	
 	'''PROCESSING STATISTICS READ FROM DB'''
-	def processData(self, data):
+	def processData(self):
 		self.last_call=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 		r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/statistics/"+self.last_call)
 		self.dataToProcess=r.json()
@@ -79,7 +79,7 @@ class StatisticProcessingUnit(object):
 
 			self.recall+=1
 
-		return self.statistics
+		return json.dumps(self.statistics)
 
 
 	def getIps(self):

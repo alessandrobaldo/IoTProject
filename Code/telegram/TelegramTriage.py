@@ -245,8 +245,9 @@ class botTriage(object):
 		# checking what button is been pressed
 		if (query_data == 'statistics'):
 			self.bot.sendMessage(chat_id, 'Print statistics!')
+			r=requests.get("http://"+self.ip_others["statistic_server"][0]+":"+self.ip_others["statistic_server"][1])
+			self.bot.sendMessage(chat_id,r.json())
 			self.bot.sendMessage(chat_id, 'Choose an option:', reply_markup = self.keyboard)
-			print("STATISTICS")
 		elif (query_data == 'Insert'):
 			# insert button pressed, now it's possible to start to insert patient's data
 			self.flagName = True

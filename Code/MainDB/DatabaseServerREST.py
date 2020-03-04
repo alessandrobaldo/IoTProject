@@ -11,10 +11,11 @@ class DatabaseServerREST(object):
 	
 	'''RETRIEVING DATA FOR THE PROCESSINGS'''
 	def GET(*uri,**params):
-		
+		print(uri)
 		if(uri[1]=="process"):
 			return d.readDataQueue()
 		elif(uri[1]=="statistics"):
+			print("WE")
 			return d.readStatistics(uri[2])
 
 	'''Receiving data from QueueProcessing to insert them'''

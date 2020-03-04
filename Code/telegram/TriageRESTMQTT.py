@@ -14,7 +14,7 @@ class TriageRESTMQTT(object):
 	def __init__(self, clientID):
 		self.clientID = clientID
 		self.topic = t.getTopicPublisher()
-		self.broker = "192.168.1.103"
+		self.broker = "192.168.1.156"
 		self.status=''
 
 		self._paho_mqtt = PahoMQTT.Client(clientID, False)

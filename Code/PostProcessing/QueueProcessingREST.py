@@ -61,7 +61,7 @@ class QueueProcessingRESTMQTT(object):
 		self._paho_mqtt.on_message = self.myOnMessageReceived
 		#when you connect don't do the thing coded in the library, but my method of connection
 		self.topic=q.getTopicPublisher()
-		self.broker="192.168.1.103"
+		self.broker="192.168.1.156"
 		self.subscribed=False
 
 	def start(self):
