@@ -61,7 +61,7 @@ class QueueProcessingRESTMQTT(object):
 		self._paho_mqtt.on_message = self.myOnMessageReceived
 		#when you connect don't do the thing coded in the library, but my method of connection
 		self.topic=q.getTopicPublisher()
-		self.broker="192.168.1.156"
+		self.broker="192.168.1.103"
 		self.subscribed=False
 
 	def start(self):
@@ -97,30 +97,39 @@ class QueueProcessingRESTMQTT(object):
 		self.subscribed=False
 
 	def myOnMessageReceived(self, paho_mqtt , userdata, msg):
-			'''RECEIVING DATA FROM TELEGRAM ABOUT A NEW PATIENT'''
-			
-			message=json.loads(msg.payload)
-			message["id_patient"]=q.getCurrentPatient()
+		'''RECEIVING DATA FROM TELEGRAM ABOUT A NEW PATIENT'''
+		print("RECEIVED")
+		message=json.loads(msg.payload)
+		message["id_patient"]=q.getCurrentPatient()
 
-			id1=message["pressure_id"]
-			id2=message["heart_id"]
-			id3=message["glucose_id"]
-			time_stamp=message["time_stamp"]
-			code=message["code"]
-			data={
-			"pressure_id":id1,
-			"heart_id":id2,
-			"glucose_id":id3,
-			"code":code,
-			"time_stamp":time_stamp
-			}
-			q.askDataSensors(id1,id2,id3)
+		id1=message["pressure_id"]
+		id2=message["heart_id"]
+		id3=message["glucose_id"]
+		time_stamp=message["time_stamp"]
+		code=message["code"]
+		data={
+		"pressure_id":id1,
+		"heart_id":id2,
+		"glucose_id":id3,
+		"code":code,
+		"time_stamp":time_stamp
+		}
+		try:
 			q.sendDataDatabase("patients",json.dumps(message))
+		except:
+			print("Impossible to send data to DB")
+		try:
+			q.askDataSensors(id1,id2,id3)
+		except:
+			print("Sensors not available")
 
-			'''NOTIFYING TIME SHIFT OF THE ARRIVAL OF A NEW PATIENT'''
+		'''NOTIFYING TIME SHIFT OF THE ARRIVAL OF A NEW PATIENT'''
+		try:
 			q.sendDataTime(json.dumps(data))
+		except:
+			print("Impossible to set a scheduling")
 
-			
+		
 if __name__=='__main__':
 	conf = { '/': { 'request.dispatch': cherrypy.dispatch.MethodDispatcher(), 'tools.sessions.on': True } }
 	# building the web service
@@ -138,9 +147,9 @@ if __name__=='__main__':
 		q.processData()
 		time.sleep(10)
 		i+=1
-		if(i==2):
-			server.myPublish(q.getQueue())
+		if(i==3):
 			q.processPatient()
+			server.myPublish(q.getQueue())
 			i=0
 	server.myUnsubscribe()
 	server.stop()

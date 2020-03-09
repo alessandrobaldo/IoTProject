@@ -8,6 +8,8 @@ import paho.mqtt.client as PahoMQTT
 import socket
 from telegram.error import RetryAfter,TimedOut
 import matplotlib.pyplot as plt
+import matplotlib as mtp
+mtp.use('agg')
 
 class botTriage(object):
 	def __init__(self):
@@ -66,25 +68,19 @@ class botTriage(object):
 	def getData(self):
 		return self.my_data
 	
-	def setResult(self,data):
-		self.mqtt=data[0]
-		self.ip_others=data[1]
-		self.available_sensors=data[2]
-
-		print(json.dumps(self.mqtt,indent=4))
-		print(json.dumps(self.ip_others,indent=4))
-		print(json.dumps(self.available_sensors,indent=4))
+	def setData(self,data):
+		self.ip_others=data[0]
+		self.available_sensors=data[1]
 
 	def configure(self):
 		
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))
 
-		self.mqtt=self.result.json()[0]
-		self.ip_others=self.result.json()[1]
-		self.available_sensors=self.result.json()[2]
+		self.ip_others=self.result.json()[0]
+		self.available_sensors=self.result.json()[1]
 
 	def on_chat_message(self, msg):
-		content_type, chat_type, chat_id = telepot.glance(msg)
+		content_type, chat_type, self.chat_id = telepot.glance(msg)
 		self.js={}
 		if (content_type == 'text'):
 			txt = msg['text']
@@ -94,53 +90,53 @@ class botTriage(object):
 			self.name = msg['text']
 			self.flagName = False
 			self.flagSurname = True
-			self.bot.sendMessage(chat_id, 'Surname:')
+			self.bot.sendMessage(self.chat_id, 'Surname:')
 		elif self.flagSurname == True and self.flagExit == False:
 			self.surname = msg['text']
 			self.flagSurname = False
 			self.flagAge = True
-			self.bot.sendMessage(chat_id, 'Age:')
+			self.bot.sendMessage(self.chat_id, 'Age:')
 		elif self.flagAge == True and self.flagExit == False:
 			self.age = msg['text']
 			if self.age.isnumeric():
 				self.flagAge = False
 				self.flagGender = True
-				self.bot.sendMessage(chat_id, 'Gender (M, F, O):')
+				self.bot.sendMessage(self.chat_id, 'Gender (M, F, O):')
 			else:
 				self.bot.sendMessage(chat_id, 'Error! Enter a valide age, it must be a number.')
 		elif self.flagGender == True and self.flagExit == False:
 			self.gender = msg['text']
 			if self.gender!='M' and self.gender!='F' and self.gender!='O':
-				self.bot.sendMessage(chat_id, 'Error! Enter a valide gender, it could be M(male), F(female) or O(other).')
+				self.bot.sendMessage(self.chat_id, 'Error! Enter a valide gender, it could be M(male), F(female) or O(other).')
 			
 			else:
 				self.flagGender = False
 				self.flagWeight = True
-				self.bot.sendMessage(chat_id, 'Weight (kg):')
+				self.bot.sendMessage(self.chat_id, 'Weight (kg):')
 		elif self.flagWeight == True and self.flagExit == False:
 			self.weight = msg['text']
 			if self.weight.isnumeric():
 				self.flagWeight = False
 				self.flagHeight = True
-				self.bot.sendMessage(chat_id, 'Height (cm):')
+				self.bot.sendMessage(self.chat_id, 'Height (cm):')
 			else:
-				self.bot.sendMessage(chat_id, 'Error! Enter a valide weight(kg), it must be a number.')
+				self.bot.sendMessage(self.chat_id, 'Error! Enter a valide weight(kg), it must be a number.')
 		elif self.flagHeight == True and self.flagExit == False:
 			self.height = msg['text']
 			if self.height.isnumeric():
 				self.flagHeight = False
 				self.flagCod = True
-				self.bot.sendMessage(chat_id, 'Code (2,3,4, or 5):')
+				self.bot.sendMessage(self.chat_id, 'Code (2,3,4, or 5):')
 			else:
-				self.bot.sendMessage(chat_id, 'Error! Enter a valide height(cm), it must be a number.')
+				self.bot.sendMessage(self.chat_id, 'Error! Enter a valide height(cm), it must be a number.')
 		elif self.flagCod == True and self.flagExit == False:
 			self.code = msg['text']
 			if int(self.code)!=2 and int(self.code)!=3 and int(self.code)!=4 and int(self.code)!=5:
-				self.bot.sendMessage(chat_id, 'Error! Enter a valide code, it could be 2,3,4 or 5.')
+				self.bot.sendMessage(self.chat_id, 'Error! Enter a valide code, it could be 2,3,4 or 5.')
 			else:
 				self.flagCod = False
 				self.flagRep = True
-				self.bot.sendMessage(chat_id, 'Unit:')
+				self.bot.sendMessage(self.chat_id, 'Unit:')
 		elif self.flagRep == True and self.flagExit == False:
 			self.unit = msg['text']
 			self.flagRep = False
@@ -148,7 +144,7 @@ class botTriage(object):
 			self.listpr=[]
 			for n in self.available_sensors["pressure"]:
 				self.listpr.append(n)
-			self.bot.sendMessage(chat_id, 'Choose a pressure sensors available - '+str(self.listpr))
+			self.bot.sendMessage(self.chat_id, 'Choose a pressure sensors available - '+str(self.listpr))
 
 		elif self.flagSp == True and self.flagExit == False:
 			self.IDpressure = msg['text']
@@ -158,14 +154,14 @@ class botTriage(object):
 				if(self.IDpressure==str(n)):
 					self.pr=n
 			if self.pr==0:
-				self.bot.sendMessage(chat_id, 'INVALID ID! Choose one of the pressure sensors available - '+str(self.listpr))
+				self.bot.sendMessage(self.chat_id, 'INVALID ID! Choose one of the pressure sensors available - '+str(self.listpr))
 			else:
 				self.flagSp = False
 				self.flagSg = True
 				self.listgl=[]
 				for n in self.available_sensors["glucose"]:
 					self.listgl.append(n)
-				self.bot.sendMessage(chat_id, 'Choose a glucose sensors available - '+str(self.listgl))
+				self.bot.sendMessage(self.chat_id, 'Choose a glucose sensors available - '+str(self.listgl))
 
 		elif self.flagSg == True and self.flagExit == False:
 			self.IDglucose = msg['text']
@@ -176,14 +172,14 @@ class botTriage(object):
 				if(self.IDglucose==str(n)):
 					self.gl=n
 			if self.gl==0:
-				self.bot.sendMessage(chat_id, 'INVALID ID! Choose one of the glucose sensors available - '+str(self.listgl))
+				self.bot.sendMessage(self.chat_id, 'INVALID ID! Choose one of the glucose sensors available - '+str(self.listgl))
 			else:
 				self.flagSg = False
 				self.flagSh = True
 				self.listhe=[]
 				for n in self.available_sensors["heart"]:
 					self.listhe.append(n)
-				self.bot.sendMessage(chat_id, 'Choose a heart sensors available - '+str(self.listhe))
+				self.bot.sendMessage(self.chat_id, 'Choose a heart sensors available - '+str(self.listhe))
 
 		elif self.flagSh == True and self.flagExit == False:
 			self.IDheart = msg['text']
@@ -194,7 +190,7 @@ class botTriage(object):
 				if(self.IDheart==str(n)):
 					self.he=n
 			if self.he==0:
-				self.bot.sendMessage(chat_id, 'INVALID ID! Choose one of the heart sensors available - '+str(self.listhe))
+				self.bot.sendMessage(self.chat_id, 'INVALID ID! Choose one of the heart sensors available - '+str(self.listhe))
 			else:
 				self.sens={
 					"pressure":self.pr,
@@ -222,14 +218,14 @@ class botTriage(object):
 					}
 				print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 				self.readyToSend=True
-				self.bot.sendMessage(chat_id, 'Patient registered succesfully!')
+				self.bot.sendMessage(self.chat_id, 'Patient registered succesfully!')
 				print('REGISTERED')
 				# sending a message with buttons
-				self.bot.sendMessage(chat_id, 'Choose an option:', reply_markup = self.keyboard)
+				self.bot.sendMessage(self.chat_id, 'Choose an option:', reply_markup = self.keyboard)
 			
 		else:
 			# sending a message with buttons
-			self.bot.sendMessage(chat_id, 'Choose an option:', reply_markup = self.keyboard)
+			self.bot.sendMessage(self.chat_id, 'Choose an option:', reply_markup = self.keyboard)
 
 	def isReadyToSend(self):
 		return self.readyToSend
@@ -241,57 +237,91 @@ class botTriage(object):
 	def on_callback_query(self, msg):
 		# data about the pressed button
 		self.js={}
-		query_id, chat_id, query_data = telepot.glance(msg, flavor='callback_query')
-		print('callback:', query_id, chat_id, query_data)
+		query_id, self.chat_id, query_data = telepot.glance(msg, flavor='callback_query')
+		print('callback:', query_id, self.chat_id, query_data)
 		# checking what button is been pressed
 		if (query_data == 'statistics'):
-			self.bot.sendMessage(chat_id, 'Print statistics!')
+			self.bot.sendMessage(self.chat_id, 'Print statistics!')
 			r=requests.get("http://"+self.ip_others["statistic_server"][0]+":"+self.ip_others["statistic_server"][1])
 			stat=r.json()
 
-			ages=[stat["age"]["under25"],stat["age"]["under45"],stat["age"]["under55"],stat["age"]["under65"],stat["age"]["over65"]]
+			labels=[]
+			heights=[]
+			for key in stat["age"].keys():
+				labels.append(key)
+				heights.append(stat["age"][key])
+
 			fig1=plt.figure()
-			plt.hist(ages)
+			plt.bar(labels,heights)
 			plt.title("Age ranges")
 			plt.xlabel("Age")
 			plt.ylabel("Frequency")
-			plt.show()
-			#plt.savefig("/Age.png")
+			plt.savefig("Age.png")
+			plt.close()
 
-			fig2=plt.hist(stat["unit"])
+	
+			self.bot.sendPhoto(self.chat_id,open("Age.png","rb"),caption=None)
+
+			labels=[]
+			heights=[]
+			for key in stat["unit"].keys():
+				labels.append(key)
+				heights.append(stat["unit"][key])
+
+			fig2=plt.bar(labels,heights)
 			plt.title("Unit occupancies")
-			plt.xlabel("Unit")
+			plt.xlabel("Units")
 			plt.ylabel("Frequency")
-			plt.savefig("/Unit.png")
+			plt.savefig("Unit.png")
+			plt.close()
 
-			fig3=plt.hist(stat["code"])
+			self.bot.sendPhoto(self.chat_id,open("Unit.png","rb"),caption=None)
+
+
+			labels=[]
+			heights=[]
+			for key in stat["code"].keys():
+				labels.append(key)
+				heights.append(stat["code"][key])
+
+			fig3=plt.bar(labels,heights)
 			plt.title("Code classes")
 			plt.xlabel("Code")
 			plt.ylabel("Frequency")
-			plt.savefig("/Code.png")
+			plt.savefig("Code.png")
+			plt.close()
 
-			fig4=plt.hist(stat["gender"])
+			self.bot.sendPhoto(self.chat_id,open("Code.png","rb"),caption=None)
+
+			labels=[]
+			heights=[]
+			for key in stat["gender"].keys():
+				labels.append(key)
+				heights.append(stat["gender"][key])
+
+			fig4=plt.bar(labels,heights)
 			plt.title("Gender frequencies")
 			plt.xlabel("Gender")
 			plt.ylabel("Frequency")
-			plt.savefig("/Gender.png")
+			plt.savefig("Gender.png")
+			plt.close()
+
+			self.bot.sendPhoto(self.chat_id,open("Gender.png","rb"),caption=None)
 
 
-			self.bot.sendMessage(chat_id,"Obseity data:"+str(stat["obesity"]+" patients"))
-			self.bot.sendPhoto(chat_id,"/Age.png",caption=None)
-			self.bot.sendMessage(chat_id, 'Choose an option:', reply_markup = self.keyboard)
+
+			self.bot.sendMessage(self.chat_id,"Obseity data:"+str(stat["obesity"])+" patients")
+			self.bot.sendMessage(self.chat_id, 'Choose an option:', reply_markup = self.keyboard)
 		elif (query_data == 'Insert'):
 			# insert button pressed, now it's possible to start to insert patient's data
 			self.flagName = True
-			self.bot.sendMessage(chat_id, 'Name:')
+			self.bot.sendMessage(self.chat_id, 'Name:')
 
 	def send_message(self, message):
-		self.bot.sendMessage(chat_id, message)
+		self.bot.sendMessage(self.chat_id, message)
 
 	def getIps(self):
 		return self.ip_others
 
-	def getTopicsSubscriber(self):
-		return self.mqtt
 	def getTopicPublisher(self):
 		return self.my_data["telegram_triage"]["topic"][0]

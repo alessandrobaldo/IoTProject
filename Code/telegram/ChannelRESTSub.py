@@ -12,7 +12,7 @@ class ChannelRESTMQTT(object):
 
 	def __init__(self, clientID):
 		self.clientID = clientID
-		self.broker="192.168.1.156"
+		self.broker="192.168.1.103"
 
 		self._paho_mqtt = PahoMQTT.Client(clientID, False)
 		self._paho_mqtt.on_connect = self.myOnConnect

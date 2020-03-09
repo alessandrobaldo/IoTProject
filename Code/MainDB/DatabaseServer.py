@@ -60,6 +60,8 @@ class DatabaseServer(object):
 					  `code` int(11) DEFAULT NULL,\
 					  `unit` varchar(50) DEFAULT NULL,\
 					  `time_stamp` timestamp NULL DEFAULT NULL\
+					  `processed` int(1) DEFAULT NULL,\
+  					  `analysed` int(1) DEFAULT NULL\
 					) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
 			self.cursor.execute(query,multi=True)
 			self.cursor.execute(query2,multi=True)
@@ -116,8 +118,8 @@ class DatabaseServer(object):
 
 	def insertDataTelegram(self,data):
 		
-		add_patients_data=("INSERT INTO info_patients (id_patient,pressure_id,heart_id,glucose_id,name,surname,age,height,weight,gender,code,unit,time_stamp) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)")
-		patient_registry=(data["id_patient"],data["pressure_id"],data["heart_id"],data["glucose_id"],data["name"],data["surname"],data["age"],data["height"],data["weight"],data["gender"],data["code"],data["unit"],data["time_stamp"])
+		add_patients_data=("INSERT INTO info_patients (id_patient,pressure_id,heart_id,glucose_id,name,surname,age,height,weight,gender,code,unit,time_stamp, processed,analysed) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)")
+		patient_registry=(data["id_patient"],data["pressure_id"],data["heart_id"],data["glucose_id"],data["name"],data["surname"],data["age"],data["height"],data["weight"],data["gender"],data["code"],data["unit"],data["time_stamp"],0,0)
 		self.cursor.execute(add_patients_data,patient_registry)
 		self.conn.commit()
 
@@ -136,7 +138,7 @@ class DatabaseServer(object):
 			sensors["glucose_id"]=row[2]
 
 
-		query="DELETE FROM info_patients WHERE id_patient=%(key)s"
+		query="UPDATE info_patients SET processed=1 WHERE id_patient=%(key)s"
 		self.cursor.execute(query,{"key":key})
 		self.conn.commit()
 
@@ -148,7 +150,7 @@ class DatabaseServer(object):
 	'''DATA QUEUE PROCESSING'''
 
 	def readDataQueue(self):
-		query="SELECT i.id_patient, d.pressure_min, d.pressure_max, d.rate, d.glucose, i.code, i.age, i.time_stamp, i.name, i.surname, i.gender, d.pressure_id,d.heart_id,d.glucose_id FROM data_sensors d, info_patients i WHERE d.pressure_id=i.pressure_id AND d.heart_id=i.heart_id AND d.glucose_id=i.glucose_id ORDER BY i.code ASC"
+		query="SELECT i.id_patient, d.pressure_min, d.pressure_max, d.rate, d.glucose, i.code, i.age, i.time_stamp, i.name, i.surname, i.gender, d.pressure_id,d.heart_id,d.glucose_id FROM data_sensors d, info_patients i WHERE d.pressure_id=i.pressure_id AND d.heart_id=i.heart_id AND d.glucose_id=i.glucose_id AND processed=0 ORDER BY i.code ASC"
 		self.cursor.execute(query)
 		result=self.cursor.fetchall()
 
@@ -175,75 +177,85 @@ class DatabaseServer(object):
 
 	'''DATA STATISTIC PROCESSING'''
 
-	def readStatistics(self,time_stamp):
-		print("WA")
-		print(time_stamp)
+	def readStatistics(self):
 		statistics={}
-		queryage1="SELECT DISTINCT COUNT(*) as under25 FROM info_patients WHERE age<=25 AND time_stamp>=%(key)s GROUP BY age"
-		queryage2="SELECT DISTINCT COUNT(*) as under45 FROM info_patients WHERE age<=45 AND age>25 AND time_stamp>=%(key)s GROUP BY age"
-		queryage3="SELECT DISTINCT COUNT(*) as under55 FROM info_patients WHERE age<=55 and age>45 AND time_stamp>=%(key)s GROUP BY age"
-		queryage4="SELECT DISTINCT COUNT(*) as under65 FROM info_patients WHERE age<=65 and age>55 AND time_stamp>=%(key)s GROUP BY age"
-		queryage5="SELECT DISTINCT COUNT(*) as over65 FROM info_patients WHERE age>65 AND time_stamp>=%(key)s GROUP BY age"
-		query2="SELECT DISTINCT unit, COUNT(*) as diff_units FROM info_patients WHERE time_stamp>=%(key)s GROUP BY unit"
-		query3="SELECT DISTINCT gender, COUNT(*) as diff_genders FROM info_patients WHERE time_stamp>=%(key)s GROUP BY gender"
-		query4="SELECT DISTINCT code, COUNT(*) as diff_codes FROM info_patients WHERE time_stamp>=%(key)s GROUP BY code"
-		query5="SELECT COUNT(*) as obesity FROM info_patients WHERE CAST(weight as INT)/(CAST(height as INT)*CAST(height as INT)*0.0001)>30 AND time_stamp>=%(key)s"
+		queryage1="SELECT DISTINCT COUNT(*) as under25 FROM info_patients WHERE age<=25 AND analysed=0"
+		queryage2="SELECT DISTINCT COUNT(*) as under45 FROM info_patients WHERE age<=45 AND age>25 AND analysed=0"
+		queryage3="SELECT DISTINCT COUNT(*) as under55 FROM info_patients WHERE age<=55 and age>45 AND analysed=0"
+		queryage4="SELECT DISTINCT COUNT(*) as under65 FROM info_patients WHERE age<=65 and age>55 AND analysed=0"
+		queryage5="SELECT DISTINCT COUNT(*) as over65 FROM info_patients WHERE age>65 AND analysed=0"
+		query2="SELECT DISTINCT unit, COUNT(*) as diff_units FROM info_patients WHERE analysed=0 GROUP BY unit"
+		query3="SELECT DISTINCT gender, COUNT(*) as diff_genders FROM info_patients WHERE analysed=0 GROUP BY gender"
+		query4="SELECT DISTINCT code, COUNT(*) as diff_codes FROM info_patients WHERE analysed=0 GROUP BY code"
+		query5="SELECT COUNT(*) as obesity FROM info_patients WHERE CAST(weight as INT)/(CAST(height as INT)*CAST(height as INT)*0.0001)>30 AND analysed=0"
 
-		self.cursor.execute(queryage1,{"key":time_stamp})
+		self.cursor.execute(queryage1)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["age"]["under25"]=row[0]
+			if row[0]!=0:
+				statistics["age"]={"under25":row[0]}
 
-		self.cursor.execute(queryage2,{"key":time_stamp})
+		self.cursor.execute(queryage2)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["age"]["under45"]=row[0]
+			if row[0]!=0:
+				statistics["age"]={"under45":row[0]}
 
-		self.cursor.execute(queryage3,{"key":time_stamp})
+		self.cursor.execute(queryage3)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["age"]["under55"]=row[0]
+			if row[0]!=0:
+				statistics["age"]={"under55":row[0]}
 
-		self.cursor.execute(queryage4,{"key":time_stamp})
+		self.cursor.execute(queryage4)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["age"]["under65"]=row[0]
+			if row[0]!=0:
+				statistics["age"]={"under65":row[0]}
 
-		self.cursor.execute(queryage5,{"key":time_stamp})
+		self.cursor.execute(queryage5)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["age"]["over65"]=row[0]
+			if row[0]!=0:
+				statistics["age"]={"over65":row[0]}
 
-		self.cursor.execute(query2,{"key":time_stamp})
+		self.cursor.execute(query2)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["unit"][row[0]]=row[1]
+			if row[0]!=0:
+				statistics["unit"]={row[0]:row[1]}
 
-		self.cursor.execute(query3,{"key":time_stamp})
+		self.cursor.execute(query3)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["gender"][row[0]]=row[1]
+			if row[0]!=0:
+				statistics["gender"]={row[0]:row[1]}
 
-		self.cursor.execute(query4,{"key":time_stamp})
+		self.cursor.execute(query4)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["code"][row[0]]=row[1]
+			if row[0]!=0:
+				statistics["code"]={row[0]:row[1]}
 
-		self.cursor.execute(query5,{"key":time_stamp})
+		self.cursor.execute(query5)
 		result=self.cursor.fetchall()
 
 		for row in result:
-			statistics["obesity"]=row[0]
+			if row[0]!=0:
+				statistics["obesity"]=row[0]
 
-		print(statistics)
+		queryupdate="UPDATE info_patients SET analysed=1"
+		self.cursor.execute(queryupdate)
+		self.conn.commit()
+
 		return json.dumps(statistics)
 
 	def closeconn(self):

@@ -55,88 +55,89 @@ class QueueProcessingUnit(object):
 		return self.queue
 	
 	def processData(self):
-		print(self.queue)
-		'''ASKING THE DB SERVER DATA OF CURRENT PATIENTS'''
-		self.r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/process")
-		dataToProcess=self.r.json()
+		try:
+			'''ASKING THE DB SERVER DATA OF CURRENT PATIENTS'''
+			self.r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/process")
+			dataToProcess=self.r.json()
 
-		position={}
-		history_positions={}
-		i=1
-		for key in dataToProcess.keys():
-			position[key]=i
-			history_positions[key]=[]
-			history_positions[key].append(i)
-			i+=1
-		
-		for i in range(len(dataToProcess.keys())-1):
-			for j in range(i+1,len(dataToProcess.keys())):
-				key1=list(dataToProcess.keys())[i]
-				key2=list(dataToProcess.keys())[j]
+			position={}
+			history_positions={}
+			i=1
+			for key in dataToProcess.keys():
+				position[key]=i
+				history_positions[key]=[]
+				history_positions[key].append(i)
+				i+=1
+			
+			for i in range(len(dataToProcess.keys())-1):
+				for j in range(i+1,len(dataToProcess.keys())):
+					key1=list(dataToProcess.keys())[i]
+					key2=list(dataToProcess.keys())[j]
 
-				flag1=0
-				flag2=0
+					flag1=0
+					flag2=0
 
-				if(dataToProcess[key1]["code"]==dataToProcess[key2]["code"]):
-					age1=int(dataToProcess[key1]["age"])
-					age2=int(dataToProcess[key2]["age"])
+					if(dataToProcess[key1]["code"]==dataToProcess[key2]["code"]):
+						age1=int(dataToProcess[key1]["age"])
+						age2=int(dataToProcess[key2]["age"])
 
-					minPres1=dataToProcess[key1]["pressure_min"]
-					maxPres1=dataToProcess[key1]["pressure_max"]
-					rate1=dataToProcess[key1]["rate"]
-					glucose1=dataToProcess[key1]["glucose"]
-					
-					minPres2=dataToProcess[key2]["pressure_min"]
-					maxPres2=dataToProcess[key2]["pressure_max"]
-					rate2=dataToProcess[key2]["rate"]
-					glucose2=dataToProcess[key2]["glucose"]
+						minPres1=dataToProcess[key1]["pressure_min"]
+						maxPres1=dataToProcess[key1]["pressure_max"]
+						rate1=dataToProcess[key1]["rate"]
+						glucose1=dataToProcess[key1]["glucose"]
+						
+						minPres2=dataToProcess[key2]["pressure_min"]
+						maxPres2=dataToProcess[key2]["pressure_max"]
+						rate2=dataToProcess[key2]["rate"]
+						glucose2=dataToProcess[key2]["glucose"]
 
-					flag1=self.manageQueueInit(key1,age1,minPres1,maxPres1,glucose1,rate1)
-					flag2=self.manageQueueInit(key2,age2,minPres2,maxPres2,glucose2,rate2)
+						flag1=self.manageQueueInit(key1,age1,minPres1,maxPres1,glucose1,rate1)
+						flag2=self.manageQueueInit(key2,age2,minPres2,maxPres2,glucose2,rate2)
 
-					if(flag2>flag1):
-						position2=position[key2]
-						position[key2]=position[key1]
-						position[key1]=position2
-
-					elif(flag1==flag2):
-						time_stamp1=dataToProcess[key1]["time_stamp"]
-						time_stamp2=dataToProcess[key2]["time_stamp"]
-
-						if(time_stamp2>time_stamp1):
+						if(flag2>flag1):
 							position2=position[key2]
 							position[key2]=position[key1]
 							position[key1]=position2
 
-							history_positions[key1].append(position[key1])
-							history_positions[key2].append(position[key2])
+						elif(flag1==flag2):
+							time_stamp1=dataToProcess[key1]["time_stamp"]
+							time_stamp2=dataToProcess[key2]["time_stamp"]
+
+							if(time_stamp2>time_stamp1):
+								position2=position[key2]
+								position[key2]=position[key1]
+								position[key1]=position2
+
+								history_positions[key1].append(position[key1])
+								history_positions[key2].append(position[key2])
 
 
-		for key in history_positions.keys():
-			if(dataToProcess[key]["code"]!=2):
-				if(len(history_positions[key])>=5):
-					trend=0
-					for i in range(1, len(history_positions[key])):
-						age=int(dataToProcess[key]["age"])
-						minPres=dataToProcess[key]["pressure_min"]
-						maxPres=dataToProcess[key]["pressure_max"]
-						rate=dataToProcess[key]["rate"]
-						glucose=dataToProcess[key]["glucose"]
+			for key in history_positions.keys():
+				if(dataToProcess[key]["code"]!=2):
+					if(len(history_positions[key])>=5):
+						trend=0
+						for i in range(1, len(history_positions[key])):
+							age=int(dataToProcess[key]["age"])
+							minPres=dataToProcess[key]["pressure_min"]
+							maxPres=dataToProcess[key]["pressure_max"]
+							rate=dataToProcess[key]["rate"]
+							glucose=dataToProcess[key]["glucose"]
 
-						if(history_positions[key][i]<history_positions[key][i-1] or (history_positions[key][i]==history_positions[key][i-1] and self.manageQueueInit(key,age,minPres,maxPres,glucose,rate)!=0)):
-							trend+=1
-					if(trend>=5):
-						dataToProcess[key]["code"]=dataToProcess[key]["code"]-1		
+							if(history_positions[key][i]<history_positions[key][i-1] or (history_positions[key][i]==history_positions[key][i-1] and self.manageQueueInit(key,age,minPres,maxPres,glucose,rate)!=0)):
+								trend+=1
+						if(trend>=5):
+							dataToProcess[key]["code"]=dataToProcess[key]["code"]-1		
 
-		
-		position={k: v for k, v in sorted(position.items(), key=lambda item: item[1])}
+			
+			position={k: v for k, v in sorted(position.items(), key=lambda item: item[1])}
 
-		for key in position.keys():
-			self.queue[key]=dataToProcess[key]
+			for key in position.keys():
+				self.queue[key]=dataToProcess[key]
 
-		print(self.queue)
-		
-		
+			print(self.queue)
+		except:
+			print("Impossible to process any data, the DB server is not online")	
+			
 	'''FUNCTION TO MANAGE POSITION IN THE QUEUE'''
 	def manageQueueInit(self, key,age, minPres,maxPres,glucose,rate):
 		flag=0

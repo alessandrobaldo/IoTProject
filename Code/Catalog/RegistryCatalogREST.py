@@ -62,12 +62,8 @@ class RegistryCatalogREST(object):
 
 			elif key=="statistic_server":
 				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
-				r.insertTopic(json_body[key],key)
-				mqtt_topics=r.readTopics(key)
 				ips=r.readMappings(key)
-
-				return_list=[json.loads(mqtt_topics),json.loads(ips)]
-				return json.dumps(return_list)
+				return ips
 
 			elif key=="ihealth_adapter":
 				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
@@ -84,13 +80,13 @@ class RegistryCatalogREST(object):
 				return json.dumps(return_list)
 
 			elif key=="telegram_triage":
+				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
 				r.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
 				r.insertTopic(json_body[key],key)
 				ips=r.readMappings(key)
-				mqtt_topics=r.readTopics(key)
 				available_sensors=r.readAvailableSensors()
 
-				return_list=[json.loads(mqtt_topics),json.loads(ips),json.loads(available_sensors)]
+				return_list=[json.loads(ips),json.loads(available_sensors)]
 				return json.dumps(return_list)
 
 			elif key=="time_shift":

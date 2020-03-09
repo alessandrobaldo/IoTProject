@@ -59,59 +59,72 @@ class StatisticProcessingUnit(object):
 		return self.my_data
 
 	def setData(self,data):
-		self.mqtt=data[0]
-		self.ip_others=data[1]
-
-		#print(json.dumps(self.mqtt,indent=4))
-		#print(json.dumps(self.ip_others,indent=4))
+		self.ip_others=data
+		
 
 	def configure(self):
 		
 		self.result=requests.post(self.catalog,json.dumps(self.my_data))
 
-		self.mqtt=self.result.json()[0]
-		self.ip_others=self.result.json()[1]
+		self.ip_others=self.result.json()
 	
 	'''PROCESSING STATISTICS READ FROM DB'''
 	def processData(self):
-		self.last_call=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
-		r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/statistics/"+self.last_call)
-		self.dataToProcess=r.json()
-		print(self.dataToProcess)
-		
-		if not self.dataToProcess:
-			print("Statistic didn't change from the previous ones")
-		else:
-			self.statistics["age"]["under25"]=self.statistics["age"]["under25"]*self.recall/(self.recall+1)+self.dataToProcess["age"]["under25"]/(self.recall+1)
-			self.statistics["age"]["under45"]=self.statistics["age"]["under45"]*self.recall/(self.recall+1)+self.dataToProcess["age"]["under45"]/(self.recall+1)
-			self.statistics["age"]["under55"]=self.statistics["age"]["under55"]*self.recall/(self.recall+1)+self.dataToProcess["age"]["under55"]/(self.recall+1)
-			self.statistics["age"]["under65"]=self.statistics["age"]["under65"]*self.recall/(self.recall+1)+self.dataToProcess["age"]["under65"]/(self.recall+1)
-			self.statistics["age"]["over65"]=self.statistics["age"]["over65"]*self.recall/(self.recall+1)+self.dataToProcess["age"]["over65"]/(self.recall+1)
+		try:
+			r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/statistics")
+			self.dataToProcess=r.json()
+			
+			if bool(self.dataToProcess)==False:
+				print("Statistic didn't change from the previous ones")
+			else:
+				try:
+					self.statistics["age"]["under25"]=(self.statistics["age"]["under25"]*self.recall/(self.recall+1))+self.dataToProcess["age"]["under25"]/(self.recall+1)
+				except:
+					pass
+				try:
+					self.statistics["age"]["under45"]=(self.statistics["age"]["under45"]*self.recall/(self.recall+1))+self.dataToProcess["age"]["under45"]/(self.recall+1)
+				except:
+					pass
+				try:
+					self.statistics["age"]["under55"]=(self.statistics["age"]["under55"]*self.recall/(self.recall+1))+self.dataToProcess["age"]["under55"]/(self.recall+1)
+				except:
+					pass
+				try:
+					self.statistics["age"]["under65"]=(self.statistics["age"]["under65"]*self.recall/(self.recall+1))+self.dataToProcess["age"]["under65"]/(self.recall+1)
+				except:
+					pass
+				try:
+					self.statistics["age"]["over65"]=(self.statistics["age"]["over65"]*self.recall/(self.recall+1))+self.dataToProcess["age"]["over65"]/(self.recall+1)
+				except:
+					pass
 
-			for key in self.statistics["unit"]:
-				self.statistics["unit"][key]=self.statistics["unit"][key]*self.recall/(self.recall+1)+self.dataToProcess["unit"][key]/(self.recall+1)
+				for key in self.statistics["unit"]:
+					try:
+						self.statistics["unit"][key]=(self.statistics["unit"][key]*self.recall/(self.recall+1))+self.dataToProcess["unit"][key]/(self.recall+1)
+					except:
+						pass
+				for key in self.statistics["gender"]:
+					try:
+						self.statistics["gender"][key]=(self.statistics["gender"][key]*self.recall/(self.recall+1))+self.dataToProcess["gender"][key]/(self.recall+1)
+					except:
+						pass
+				for key in self.statistics["code"]:
+					try:
+						self.statistics["code"][key]=(self.statistics["code"][key]*self.recall/(self.recall+1))+self.dataToProcess["code"][key]/(self.recall+1)
+					except:
+						pass
+				try:
+					self.statistics["obesity"]=(self.statistics["obesity"]*self.recall/(self.recall+1))+self.dataToProcess["obesity"]/(self.recall+1)
+				except:
+					pass
+				self.recall+=1
 
-			for key in self.statistics["gender"]:
-				self.statistics["gender"][key]=self.statistics["gender"][key]*self.recall/(self.recall+1)+self.dataToProcess["gender"][key]/(self.recall+1)
+		except:
+			print("Impossible to process data, DB server is not online")
 
-			for key in self.statistics["code"]:
-				self.statistics["code"][key]=self.statistics["code"][key]*self.recall/(self.recall+1)+self.dataToProcess["code"][key]/(self.recall+1)
-
-			self.statistics["obesity"]=self.statistics["obesity"]*self.recall/(self.recall+1)+self.dataToProcess["obesity"]/(self.recall+1)
-
-			self.recall+=1
-
-		print(self.statistics)
-		
 
 	def getStatistics(self):
 		return json.dumps(self.statistics)
 
 	def getIps(self):
 		return self.ip_others
-
-	def getTopicsSubscriber(self):
-		return self.mqtt
-
-	def getTopicPublisher(self):
-		return self.my_data["statistic_server"]["topic"][0]

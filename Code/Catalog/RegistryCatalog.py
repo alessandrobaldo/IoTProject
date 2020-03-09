@@ -266,11 +266,8 @@ class RegistryCatalog(object):
 						data=ips
 
 					elif key=="statistic_server":
-						mqtt_topics=self.readTopics(key)
 						ips=self.readMappings(key)
-						return_list=[json.loads(mqtt_topics),json.loads(ips)]
-						data=json.dumps(return_list)
-
+						data=ips
 					elif key=="ihealth_adapter":
 						ips=self.readMappings(key)
 						data=json.dumps(json.loads(ips))
@@ -283,9 +280,8 @@ class RegistryCatalog(object):
 
 					elif key=="telegram_triage":
 						ips=self.readMappings(key)
-						mqtt_topics=self.readTopics(key)
 						available_sensors=self.readAvailableSensors()
-						return_list=[json.loads(mqtt_topics),json.loads(ips),json.loads(available_sensors)]
+						return_list=[json.loads(ips),json.loads(available_sensors)]
 						data=json.dumps(return_list)
 
 					elif key=="time_shift":
@@ -308,7 +304,6 @@ class RegistryCatalog(object):
 
 						elif key=="statistic_server":
 							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
-							self.insertTopic(json_body[key],key)
 							
 						elif key=="ihealth_adapter":
 							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
@@ -318,6 +313,7 @@ class RegistryCatalog(object):
 							self.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
 
 						elif key=="telegram_triage":
+							self.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
 							self.insertInfoChat(key,json_body[key]["chatId"],json_body[key]["token"])
 							self.insertTopic(json_body[key],key)
 							
