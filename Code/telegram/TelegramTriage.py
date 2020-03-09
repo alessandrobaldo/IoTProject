@@ -7,6 +7,7 @@ from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 import paho.mqtt.client as PahoMQTT
 import socket
 from telegram.error import RetryAfter,TimedOut
+import matplotlib.pyplot as plt
 
 class botTriage(object):
 	def __init__(self):
@@ -246,7 +247,38 @@ class botTriage(object):
 		if (query_data == 'statistics'):
 			self.bot.sendMessage(chat_id, 'Print statistics!')
 			r=requests.get("http://"+self.ip_others["statistic_server"][0]+":"+self.ip_others["statistic_server"][1])
-			self.bot.sendMessage(chat_id,r.json())
+			stat=r.json()
+
+			ages=[stat["age"]["under25"],stat["age"]["under45"],stat["age"]["under55"],stat["age"]["under65"],stat["age"]["over65"]]
+			fig1=plt.figure()
+			plt.hist(ages)
+			plt.title("Age ranges")
+			plt.xlabel("Age")
+			plt.ylabel("Frequency")
+			plt.show()
+			#plt.savefig("/Age.png")
+
+			fig2=plt.hist(stat["unit"])
+			plt.title("Unit occupancies")
+			plt.xlabel("Unit")
+			plt.ylabel("Frequency")
+			plt.savefig("/Unit.png")
+
+			fig3=plt.hist(stat["code"])
+			plt.title("Code classes")
+			plt.xlabel("Code")
+			plt.ylabel("Frequency")
+			plt.savefig("/Code.png")
+
+			fig4=plt.hist(stat["gender"])
+			plt.title("Gender frequencies")
+			plt.xlabel("Gender")
+			plt.ylabel("Frequency")
+			plt.savefig("/Gender.png")
+
+
+			self.bot.sendMessage(chat_id,"Obseity data:"+str(stat["obesity"]+" patients"))
+			self.bot.sendPhoto(chat_id,"/Age.png",caption=None)
 			self.bot.sendMessage(chat_id, 'Choose an option:', reply_markup = self.keyboard)
 		elif (query_data == 'Insert'):
 			# insert button pressed, now it's possible to start to insert patient's data

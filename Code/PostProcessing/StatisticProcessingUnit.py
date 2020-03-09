@@ -21,7 +21,31 @@ class StatisticProcessingUnit(object):
 		"subscriber":["telegram_triage"]
 		}
 		}'''
-		self.statistics={}
+		self.statistics={
+			"age":{
+				"under25":0,
+				"under45":0,
+				"under55":0,
+				"under65":0,
+				"over65":0,
+			},
+			"gender":{
+				"M":0,
+				"F":0,
+				"O":0,
+			},
+			"code":{
+				"2":0,
+				"3":0,
+				"4":0,
+				"5":0,
+			},
+			"unit":{
+
+			},
+			"obesity":0
+
+		}
 		self.last_call=0
 		self.recall=0
 
@@ -54,10 +78,8 @@ class StatisticProcessingUnit(object):
 		r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/statistics/"+self.last_call)
 		self.dataToProcess=r.json()
 		print(self.dataToProcess)
-		if not self.statistics:
-			self.statistics=self.dataToProcess
-			self.recall+=1
-		elif not self.dataToProcess:
+		
+		if not self.dataToProcess:
 			print("Statistic didn't change from the previous ones")
 		else:
 			self.statistics["age"]["under25"]=self.statistics["age"]["under25"]*self.recall/(self.recall+1)+self.dataToProcess["age"]["under25"]/(self.recall+1)
@@ -79,8 +101,11 @@ class StatisticProcessingUnit(object):
 
 			self.recall+=1
 
-		return json.dumps(self.statistics)
+		print(self.statistics)
+		
 
+	def getStatistics(self):
+		return json.dumps(self.statistics)
 
 	def getIps(self):
 		return self.ip_others

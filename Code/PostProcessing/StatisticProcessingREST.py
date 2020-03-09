@@ -13,7 +13,7 @@ class StatisticProcessingRESTMQTT(object):
 
 
 	def GET(*uri,**params):
-		return s.processData()
+		return s.getStatistics()
 
 	def PUT(*uri,**params):
 		pass
@@ -70,7 +70,8 @@ if __name__=='__main__':
 	s.configure()
 
 	while True:
-		time.sleep(1)
+		time.sleep(10)
+		s.processData()
 		
 	server.stop()
 	cherrypy.engine.block()

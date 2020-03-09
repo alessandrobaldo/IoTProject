@@ -7,12 +7,11 @@ import socket
 i=iHealthAdapter()
 
 class iHealthAdapterREST(object):
-	exposed=True
 	
 	#Receiving request from queue server to send data about sensors with id1,id2,id3
 
 	def GET(*uri,**params):
-		
+
 		if(len(uri)!=0):
 			try:
 				print(uri)
