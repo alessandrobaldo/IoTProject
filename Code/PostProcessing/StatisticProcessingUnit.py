@@ -98,17 +98,22 @@ class StatisticProcessingUnit(object):
 				except:
 					pass
 
-				for key in self.statistics["unit"]:
+				for key in self.dataToProcess["unit"]:
 					try:
 						self.statistics["unit"][key]=(self.statistics["unit"][key]*self.recall/(self.recall+1))+self.dataToProcess["unit"][key]/(self.recall+1)
 					except:
-						pass
-				for key in self.statistics["gender"]:
+						if(len(list(self.statistics["unit"].keys()))==0):
+							self.statistics["unit"]={key:self.dataToProcess["unit"][key]/(self.recall+1)}
+						else:
+							list(self.statistics["unit"].keys()).append(key)
+							self.statistics["unit"][key]=self.dataToProcess["unit"][key]/(self.recall+1)
+
+				for key in self.dataToProcess["gender"]:
 					try:
 						self.statistics["gender"][key]=(self.statistics["gender"][key]*self.recall/(self.recall+1))+self.dataToProcess["gender"][key]/(self.recall+1)
 					except:
 						pass
-				for key in self.statistics["code"]:
+				for key in self.dataToProcess["code"]:
 					try:
 						self.statistics["code"][key]=(self.statistics["code"][key]*self.recall/(self.recall+1))+self.dataToProcess["code"][key]/(self.recall+1)
 					except:

@@ -245,6 +245,8 @@ class botTriage(object):
 			r=requests.get("http://"+self.ip_others["statistic_server"][0]+":"+self.ip_others["statistic_server"][1])
 			stat=r.json()
 
+			print(stat)
+
 			labels=[]
 			heights=[]
 			for key in stat["age"].keys():
@@ -268,7 +270,8 @@ class botTriage(object):
 				labels.append(key)
 				heights.append(stat["unit"][key])
 
-			fig2=plt.bar(labels,heights)
+			fig2=plt.figure()
+			plt.bar(labels,heights)
 			plt.title("Unit occupancies")
 			plt.xlabel("Units")
 			plt.ylabel("Frequency")

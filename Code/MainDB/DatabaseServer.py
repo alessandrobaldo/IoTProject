@@ -193,56 +193,88 @@ class DatabaseServer(object):
 
 		for row in result:
 			if row[0]!=0:
-				statistics["age"]={"under25":row[0]}
+				try:
+					statistics["age"]["under25"]=row[0]
+				except:
+					statistics["age"]={"under25":row[0]}
+					
 
 		self.cursor.execute(queryage2)
 		result=self.cursor.fetchall()
 
 		for row in result:
 			if row[0]!=0:
-				statistics["age"]={"under45":row[0]}
+				try:
+					statistics["age"]["under45"]=row[0]
+				except:
+					statistics["age"]={"under45":row[0]}
+
 
 		self.cursor.execute(queryage3)
 		result=self.cursor.fetchall()
 
 		for row in result:
 			if row[0]!=0:
-				statistics["age"]={"under55":row[0]}
+				try:
+					statistics["age"]["under55"]=row[0]
+				except:
+					statistics["age"]={"under55":row[0]}
+
 
 		self.cursor.execute(queryage4)
 		result=self.cursor.fetchall()
 
 		for row in result:
 			if row[0]!=0:
-				statistics["age"]={"under65":row[0]}
+				try:
+					statistics["age"]["under65"]=row[0]
+				except:
+					statistics["age"]={"under65":row[0]}
+
 
 		self.cursor.execute(queryage5)
 		result=self.cursor.fetchall()
 
 		for row in result:
 			if row[0]!=0:
-				statistics["age"]={"over65":row[0]}
+				try:
+					statistics["age"]["over65"]=row[0]
+				except:
+					statistics["age"]={"over65":row[0]}
+
 
 		self.cursor.execute(query2)
 		result=self.cursor.fetchall()
 
 		for row in result:
 			if row[0]!=0:
-				statistics["unit"]={row[0]:row[1]}
+				try:
+					statistics["unit"][row[0]]=row[1]
+				except:
+					statistics["unit"]={row[0]:row[1]}
+
 
 		self.cursor.execute(query3)
 		result=self.cursor.fetchall()
 
 		for row in result:
 			if row[0]!=0:
-				statistics["gender"]={row[0]:row[1]}
+				try:
+					statistics["gender"][row[0]]=row[1]
+				except:
+					statistics["gender"]={row[0]:row[1]}
+
 
 		self.cursor.execute(query4)
 		result=self.cursor.fetchall()
 
 		for row in result:
 			if row[0]!=0:
-				statistics["code"]={row[0]:row[1]}
+				try:
+					statistics["code"][row[0]]=row[1]
+				except:
+					statistics["code"]={row[0]:row[1]}
+
 
 		self.cursor.execute(query5)
 		result=self.cursor.fetchall()
@@ -255,6 +287,7 @@ class DatabaseServer(object):
 		self.cursor.execute(queryupdate)
 		self.conn.commit()
 
+		print(statistics)
 		return json.dumps(statistics)
 
 	def closeconn(self):

@@ -52,7 +52,7 @@ class TelegramHospitalChannel(object):
 		self.ip_others=self.result.json()[1]
 		
 	def send_message(self, message):
-		self.bot.sendMessage(self.my_data["telegram_hospital"]["chatId"],message)
+		self.bot.sendMessage(self.my_data["telegram_hospital"]["chatId"],message,parse_mode="Markdown")
 
 	def on_chat_message(self, msg):
 		content_type, chat_type, chat_id = telepot.glance(msg)

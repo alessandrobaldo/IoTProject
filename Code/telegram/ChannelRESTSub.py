@@ -33,7 +33,7 @@ class ChannelRESTMQTT(object):
 
 	'''RECEIVING MESSAGE TO PUBLISH IN THE CHANNEL'''
 	def myOnMessageReceived (self, paho_mqtt , userdata, msg):
-		t.send_message("NEW QUEUE")
+	
 		message=json.loads(msg.payload)
 		sending=""
 		for key in list(message.keys()):
