@@ -150,29 +150,28 @@ class DatabaseServer(object):
 	'''DATA QUEUE PROCESSING'''
 
 	def readDataQueue(self):
-		query="SELECT i.id_patient, d.pressure_min, d.pressure_max, d.rate, d.glucose, i.code, i.age, i.time_stamp, i.name, i.surname, i.gender, d.pressure_id,d.heart_id,d.glucose_id FROM data_sensors d, info_patients i WHERE d.pressure_id=i.pressure_id AND d.heart_id=i.heart_id AND d.glucose_id=i.glucose_id AND processed=0 ORDER BY i.code ASC"
+		query="SELECT i.id_patient, d.pressure_min, d.pressure_max, d.rate, d.glucose, i.code, i.age, i.time_stamp, i.name, i.surname, i.gender, d.pressure_id,d.heart_id,d.glucose_id FROM data_sensors d, info_patients i WHERE d.pressure_id=i.pressure_id AND d.heart_id=i.heart_id AND d.glucose_id=i.glucose_id AND i.processed=0 ORDER BY i.code,i.time_stamp ASC"
 		self.cursor.execute(query)
 		result=self.cursor.fetchall()
 
 		queue={}
 		for row in result:
-				queue[row[0]]={
-					"pressure_min":row[1],
-					"pressure_max":row[2],
-					"rate":row[3],
-					"glucose":row[4],
-					"code":row[5],
-					"age":row[6],
-					"time_stamp":str(row[7]),
-					"name":row[8],
-					"surname":row[9],
-					"gender":row[10],
-					"pressure_id":row[11],
-					"heart_id":row[12],
-					"glucose_id":row[13]
-				}
+			queue[row[0]]={
+				"pressure_min":row[1],
+				"pressure_max":row[2],
+				"rate":row[3],
+				"glucose":row[4],
+				"code":row[5],
+				"age":row[6],
+				"time_stamp":str(row[7]),
+				"name":row[8],
+				"surname":row[9],
+				"gender":row[10],
+				"pressure_id":row[11],
+				"heart_id":row[12],
+				"glucose_id":row[13]
+			}
 			
-		
 		return json.dumps(queue)
 
 	'''DATA STATISTIC PROCESSING'''

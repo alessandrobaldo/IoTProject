@@ -331,7 +331,7 @@ class RegistryCatalog(object):
 	
 	'''SENSORS AVAILABILITY'''
 
-	def updateSensors(self,sensors):
+	def updateSensors(self,sensors):#sensors occupied
 		query="UPDATE sensors SET available=0 WHERE type=%s AND id=%s"
 		self.cursor.execute(query,('pressure',sensors["pressure"]))
 		self.cursor.execute(query,('glucose',sensors["glucose"]))
@@ -339,7 +339,7 @@ class RegistryCatalog(object):
 
 		print(json.loads(self.readAvailableSensors()))
 
-	def releaseSensors(self,pressure_id,heart_id,glucose_id):
+	def releaseSensors(self,pressure_id,heart_id,glucose_id):#free sensors
 		query="UPDATE sensors SET available=1 WHERE type=%s AND id=%s"
 		self.cursor.execute(query,('pressure',pressure_id))
 		self.cursor.execute(query,('glucose',glucose_id))

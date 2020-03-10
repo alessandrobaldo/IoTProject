@@ -77,9 +77,7 @@ class QueueProcessingRESTMQTT(object):
 
 	'''PUBLISHING ON TELEGRAM CHANNEL'''
 	def myPublish(self,message):
-		self._paho_mqtt.publish(self.topic, json.dumps(message))
-		print("AAAAA")
-		
+		self._paho_mqtt.publish(self.topic, json.dumps(message))		
 
 	def mySubscribe(self):
 		if(self.subscribed==False):
@@ -145,11 +143,12 @@ if __name__=='__main__':
 	while True:
 		server.mySubscribe()
 		q.processData()
-		time.sleep(10)
+		time.sleep(5)
 		i+=1
-		if(i==3):
-			q.processPatient()
-			server.myPublish(q.getQueue())
+		if(i==1):
+			if(bool(q.getQueue())==True):
+				server.myPublish(q.getQueue())
+				q.processPatient()
 			i=0
 	server.myUnsubscribe()
 	server.stop()

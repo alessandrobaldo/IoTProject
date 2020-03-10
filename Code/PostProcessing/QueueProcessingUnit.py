@@ -55,7 +55,7 @@ class QueueProcessingUnit(object):
 		return self.queue
 	
 	def processData(self):
-		try:
+		#try:
 			'''ASKING THE DB SERVER DATA OF CURRENT PATIENTS'''
 			self.r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/process")
 			dataToProcess=self.r.json()
@@ -63,21 +63,22 @@ class QueueProcessingUnit(object):
 			position={}
 			history_positions={}
 			i=1
+			#Associate to each id_patient its initial position as read from DB
 			for key in dataToProcess.keys():
 				position[key]=i
 				history_positions[key]=[]
-				history_positions[key].append(i)
+				history_positions[key].append(i)#saving all the positions at each step of each patient
 				i+=1
 			
 			for i in range(len(dataToProcess.keys())-1):
 				for j in range(i+1,len(dataToProcess.keys())):
-					key1=list(dataToProcess.keys())[i]
-					key2=list(dataToProcess.keys())[j]
+					key1=list(dataToProcess.keys())[i]#patient 1
+					key2=list(dataToProcess.keys())[j]#patient 2
 
 					flag1=0
 					flag2=0
 
-					if(dataToProcess[key1]["code"]==dataToProcess[key2]["code"]):
+					if(dataToProcess[key1]["code"]==dataToProcess[key2]["code"]):#determining the position among each code, based on gravity
 						age1=int(dataToProcess[key1]["age"])
 						age2=int(dataToProcess[key2]["age"])
 
@@ -112,7 +113,7 @@ class QueueProcessingUnit(object):
 								history_positions[key2].append(position[key2])
 
 
-			for key in history_positions.keys():
+			for key in history_positions.keys():#determining if a patient can skip other patients, going up with the code
 				if(dataToProcess[key]["code"]!=2):
 					if(len(history_positions[key])>=5):
 						trend=0
@@ -128,15 +129,15 @@ class QueueProcessingUnit(object):
 						if(trend>=5):
 							dataToProcess[key]["code"]=dataToProcess[key]["code"]-1		
 
-			
+			print(position)
 			position={k: v for k, v in sorted(position.items(), key=lambda item: item[1])}
-
+			print(position)
 			for key in position.keys():
 				self.queue[key]=dataToProcess[key]
 
 			print(self.queue)
-		except:
-			print("Impossible to process any data, the DB server is not online")	
+		#except:
+		#	print("Impossible to process any data, the DB server is not online")	
 			
 	'''FUNCTION TO MANAGE POSITION IN THE QUEUE'''
 	def manageQueueInit(self, key,age, minPres,maxPres,glucose,rate):
@@ -323,7 +324,7 @@ class QueueProcessingUnit(object):
 			maxMaxPres=self.thresh["OVER65"][5]
 
 			#gluc
-			minGluc=self.thresh["OVER55"][6]
+			minGluc=self.thresh["OVER65"][6]
 			maxGluc=self.thresh["OVER65"][7]
 
 			#rate
@@ -371,7 +372,7 @@ class QueueProcessingUnit(object):
 						"heart_id":self.queue[patient["key"]]["heart_id"],
 						"glucose_id":self.queue[patient["key"]]["glucose_id"],
 					}
-
+					print("PROCESSING PATIENT "+str(patient["key"]))
 					del self.queue[patient["key"]]
 					r=requests.delete("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/"+patient["key"])
 					r=requests.delete("http://"+self.ip_others["time_shift"][0]+":"+self.ip_others["time_shift"][1]+"/"+str(sensors["code"])+"/"+str(sensors["pressure_id"])+"/"+str(sensors["heart_id"])+"/"+str(sensors["glucose_id"]))
