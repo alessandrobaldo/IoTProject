@@ -39,6 +39,4 @@ def api_blood_oxygen():
 
 if __name__ == '__main__':
     app.run(debug=True)
-    authorize()
-    callback()
-    print(api_bp())
+    

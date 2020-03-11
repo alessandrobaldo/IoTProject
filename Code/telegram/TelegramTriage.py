@@ -241,7 +241,6 @@ class botTriage(object):
 		print('callback:', query_id, self.chat_id, query_data)
 		# checking what button is been pressed
 		if (query_data == 'statistics'):
-			self.bot.sendMessage(self.chat_id, 'Print statistics!')
 			r=requests.get("http://"+self.ip_others["statistic_server"][0]+":"+self.ip_others["statistic_server"][1])
 			stat=r.json()
 
@@ -271,7 +270,7 @@ class botTriage(object):
 				heights.append(stat["unit"][key])
 
 			fig2=plt.figure()
-			plt.bar(labels,heights)
+			plt.bar(labels,heights, color='g')
 			plt.title("Unit occupancies")
 			plt.xlabel("Units")
 			plt.ylabel("Frequency")
@@ -287,7 +286,7 @@ class botTriage(object):
 				labels.append(key)
 				heights.append(stat["code"][key])
 
-			fig3=plt.bar(labels,heights)
+			fig3=plt.bar(labels,heights='y')
 			plt.title("Code classes")
 			plt.xlabel("Code")
 			plt.ylabel("Frequency")
@@ -302,7 +301,7 @@ class botTriage(object):
 				labels.append(key)
 				heights.append(stat["gender"][key])
 
-			fig4=plt.bar(labels,heights)
+			fig4=plt.bar(labels,heights, color='r')
 			plt.title("Gender frequencies")
 			plt.xlabel("Gender")
 			plt.ylabel("Frequency")

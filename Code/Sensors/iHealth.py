@@ -14,6 +14,7 @@ class iHealth():
 		self.client_secret = client_secret
 		self.redirect_uri = redirect_uri
 		self.auth_url = cfg.AUTH_URL
+		self.request_url=cfg.REQUEST_URL
 		self.user_url = cfg.USER_DATA_URL
 		self.app_url = cfg.ALL_DATA_URL
 		self.response_type = 'code'  # default value for response_type
@@ -33,7 +34,8 @@ class iHealth():
 		grant_type = 'authorization_code'   # is currently the only supported value
 		payload = {'code': code, 'client_id': self.client_id, 'grant_type': grant_type,
 				   'client_secret': self.client_secret, 'redirect_uri': self.redirect_uri}
-		r = requests.get(self.auth_url, params=payload)
+		r = requests.get(self.request_url, params=payload)
+		print(r.text)
 		self.access_token, self.refresh_token = self.get_tokens(r.text)
 		self.user_id = self.get_user_id(r.text)
 		return r.text

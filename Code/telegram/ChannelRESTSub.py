@@ -38,9 +38,10 @@ class ChannelRESTMQTT(object):
 		sending=""
 		for key in list(message.keys()):
 			sending+="\n**ID**:"+str(key)
-			sending+="\nCode:"+str(message[key]["code"])+"\tArrival Time:"+str(message[key]["time_stamp"])
-			sending+="\nPressure:"+str(message[key]["pressure_max"])+"-"+str(message[key]["pressure_min"])
-			sending+="\tHeart Rate:"+str(message[key]["rate"])+"\tGlucose:"+str(message[key]["glucose"])
+			sending+="\n\t\tCode:"+str(message[key]["code"])+"\tArrival:"+str(message[key]["time_stamp"])
+			sending+="\n\t\tPres.:"+str(message[key]["pressure_max"])+"-"+str(message[key]["pressure_min"])
+			sending+="\tHR:"+str(message[key]["rate"])+"\tGluc.:"+str(message[key]["glucose"])
+			sending+="\n-----------------------------------------"
 		
 		t.send_message(sending)
 
