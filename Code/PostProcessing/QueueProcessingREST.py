@@ -145,7 +145,7 @@ if __name__=='__main__':
 		q.processData()
 		time.sleep(5)
 		i+=1
-		if(i==1):
+		if(i==6):
 			if(bool(q.getQueue())==True):
 				server.myPublish(q.getQueue())
 				q.processPatient()

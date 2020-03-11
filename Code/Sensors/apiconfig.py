@@ -1,6 +1,6 @@
 CLIENT_ID = 'f3f31a1c073a44cc8840c4951a7cf946'
 CLIENT_SECRET = '1fcca1d613a143a8ad02f41ce56366dd'
-CALLBACK_URI = 'http://127.0.0.1:5000/callback'
+CALLBACK_URI = 'http://127.0.0.1:8080/callback'
 AUTH_URL = 'https://oauthuser.ihealthlabs.eu/OpenApiV2/OAuthv2/userauthorization/'
 USER_DATA_URL = 'https://openapi.ihealthlabs.eu/openapiv2/user/'
 ALL_DATA_URL = 'https://openapi.ihealthlabs.eu/openapiv2/application/'

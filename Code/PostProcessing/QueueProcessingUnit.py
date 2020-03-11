@@ -55,7 +55,7 @@ class QueueProcessingUnit(object):
 		return self.queue
 	
 	def processData(self):
-		#try:
+		try:
 			'''ASKING THE DB SERVER DATA OF CURRENT PATIENTS'''
 			self.r=requests.get("http://"+self.ip_others["db_server"][0]+":"+self.ip_others["db_server"][1]+"/process")
 			dataToProcess=self.r.json()
@@ -136,8 +136,8 @@ class QueueProcessingUnit(object):
 				self.queue[key]=dataToProcess[key]
 
 			print(self.queue)
-		#except:
-		#	print("Impossible to process any data, the DB server is not online")	
+		except:
+			print("Impossible to process any data, the DB server is not online")	
 			
 	'''FUNCTION TO MANAGE POSITION IN THE QUEUE'''
 	def manageQueueInit(self, key,age, minPres,maxPres,glucose,rate):

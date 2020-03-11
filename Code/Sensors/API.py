@@ -38,7 +38,7 @@ def api_blood_oxygen():
     return r
 
 if __name__ == '__main__':
-
-    app.route('/authorize')
-    app.route('/callback')
-    app.route('/api_blood_oxygen')
+    app.run(debug=True)
+    authorize()
+    callback()
+    print(api_bp())

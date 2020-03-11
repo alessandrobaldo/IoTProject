@@ -68,7 +68,7 @@ class RegistryCatalogREST(object):
 			elif key=="ihealth_adapter":
 				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])
 				ips=r.readMappings(key)
-				return json.dumps(json.loads(ips))
+				return ips
 
 			elif key=="telegram_hospital":
 				r.insertIP(key,json_body[key]["ip"],json_body[key]["port"])

@@ -37,10 +37,10 @@ class ChannelRESTMQTT(object):
 		message=json.loads(msg.payload)
 		sending=""
 		for key in list(message.keys()):
-			sending+="\n**ID:"+str(key)+"**\nName:"+message[key]["name"]+"\nSurname:"+message[key]["surname"]+"\nGender:"+message[key]["gender"]+"\nAge:"+str(message[key]["age"])
-			sending+="\nCode:"+str(message[key]["code"])+"\nArrival Time:"+str(message[key]["time_stamp"])
-			sending+="\nVital Parameters:\nPressure:"+str(message[key]["pressure_max"])+"-"+str(message[key]["pressure_min"])
-			sending+="\nHeart Rate:"+str(message[key]["rate"])+"\nGlucose:"+str(message[key]["glucose"])
+			sending+="\n**ID**:"+str(key)
+			sending+="\nCode:"+str(message[key]["code"])+"\tArrival Time:"+str(message[key]["time_stamp"])
+			sending+="\nPressure:"+str(message[key]["pressure_max"])+"-"+str(message[key]["pressure_min"])
+			sending+="\tHeart Rate:"+str(message[key]["rate"])+"\tGlucose:"+str(message[key]["glucose"])
 		
 		t.send_message(sending)
 
