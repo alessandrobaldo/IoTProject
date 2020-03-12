@@ -37,7 +37,8 @@ class TriageRESTMQTT(object):
 	'''PUBLISHING DATA TO QUEUE ABOUT NEW PATIENT'''
 	def myPublish(self):
 		self.message=json.loads(t.readyData())
-		self._paho_mqtt.publish(self.topic, json.dumps(self.message), 2)
+		for mess in self.message:
+			self._paho_mqtt.publish(self.topic, json.dumps(mess), 2)
 
 		
 
