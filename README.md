@@ -1,5 +1,5 @@
 # SMART ER - IoT Automized Architecture
-[IoT_schema.pdf](https://github.com/ingalessandrobaldo/IoTProject/files/5672352/IoT_schema.pdf)
+![IoT_schema.pdf](https://github.com/ingalessandrobaldo/IoTProject/files/5672352/IoT_schema.pdf)
 
 SMART ER is an IoT microservice oriented platform, which provides for a better management and processing of the patients flows. Nowadays, the long waiting times in an Emergency Room of an hospital represents a crucial aspect for both the patient’s and the hospital’s sides. On the one hand, hours and hours of waiting could make the patients’ health get worse, without creating the conditions for the hospital to intervene quickly. On the other hand, the old-style management of the queues represents a threat for the hospital itself.
 The architecture, thus, offers a smart way to keep track and monitor the vital parameters of each patient after the Triage phase. At each patient three sensors are assigned, to check the basic health status: a connected smart sensor to measure the blood pressure, a glucometer to analyze glycemic values and a smart pulsossimeter for both heart rate and oxygenation blood level. These sensors are provided by the iHealth company and so data are stored in a secure way in their own cloud platform and retrieved in real-time by the hospital.
